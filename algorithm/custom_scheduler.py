@@ -2,5 +2,8 @@ from algorithm import BaseScheduler
 
 
 class MyScheduler(BaseScheduler):
-    def run(self, processes, processors_info):
+    def schedule(self):
         pass
+    
+    def hasNext(self):
+        return super().hasNext()
