@@ -23,4 +23,14 @@ class BaseScheduler(ABC):
         """
         return any(process.turnaround_time is None for process in self.processes)
     
-    
+    def log_state(self) -> None:
+        """
+        현재 시간과 프로세스 상태를 출력 (디버깅용)
+        """
+        running_processes = [p for p in self.processes if p.is_running()]
+        waiting_processes = [p for p in self.processes if not p.is_completed() and not p.is_running()]
+        
+        print(f"\n[Time {self.current_time}]")
+        print(f"Running: {[p.pid for p in running_processes]}")
+        print(f"Waiting: {[p.pid for p in waiting_processes]}")
+        
