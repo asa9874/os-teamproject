@@ -12,10 +12,7 @@ class TestSceduler(BaseScheduler):
                         break
             else:
                 processor.execute(self.current_time)
-        self.current_time += 1
+            self.processer_powerOff()
         
-    def hasNext(self):
-        return super().hasNext()
-
-    def log_state(self):
-        return super().log_state()
+        self.current_time += 1
+ 

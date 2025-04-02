@@ -2,10 +2,20 @@ from core import Process
 
 class Processor:
     def __init__(self, id: int, type: str):
-        self.id = id                 # 프로세서 ID
-        self.type = type             # 'P' 또는 'E'
-        self.current_process: Process = None  # 현재 실행 중인 프로세스
-        self.remaining_time = 0      # 현재 프로세스의 남은 실행 시간
+        self.id = id                            # 프로세서 ID
+        self.type = type                        # 'P' 또는 'E'
+        self.current_process: Process = None    # 현재 실행 중인 프로세스
+        self.used_power = 0.0                   # 사용한 전력량
+        self.PowerOn = False                    # 프로세서가 켜져 있는지 여부
+        
+        if(self.type.upper() == 'P'):   # P코어일 경우
+            self.start_power = 0.5      # 시동 전력
+            self.working_power = 3.0    # 작업 전력
+            
+        else:                           # E코어일 경우       
+            self.start_power = 0.1      # 시동 전력
+            self.working_power = 1.0    # 작업 전력
+        
 
     def is_available(self) -> bool:
         """프로세서가 현재 사용 가능한지 확인"""
@@ -16,21 +26,20 @@ class Processor:
         return self.type.upper() == 'P'
 
     def assign_process(self, process):
-        """프로세스를 프로세서에 할당"""
-        if self.is_available():
-            self.current_process = process
-            self.remaining_time = process.remaining_time
-        else:
-            raise ValueError(f"Processor {self.id} is already running a process!")
+        if self.PowerOn == False:                # 프로세서가 꺼져있을 경우
+            self.PowerOn = True                  # 프로세서 켜기
+            self.used_power += self.start_power  # 시동 전력 사용
+            
+        self.current_process = process
 
     def execute(self, current_time: int):
         """현재 실행 중인 프로세스를 진행"""
         if self.current_process:
-            self.current_process.remaining_time -= 1
-            self.remaining_time -= 1
-            if self.remaining_time <= 0:
-                self.current_process.turnaround_time =current_time
-                self.current_process = None
+            self.used_power += self.working_power                   # 작업 전력 사용
+            self.current_process.remaining_time -= 1                # 프로세스의 남은 시간 감소
+            if self.current_process.remaining_time <= 0:            # 프로세스가 종료된 경우
+                self.current_process.turnaround_time =current_time  # 프로세스의 턴어라운드 타임 설정
+                self.current_process = None                         # 현재 프로세서를 None으로 설정하여 사용 가능 상태로 변경 
                 
     def __repr__(self):
         return f"Processor(id={self.id}, type={self.type}, current_process={self.current_process})"
