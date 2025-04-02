@@ -15,18 +15,25 @@ class BaseScheduler(ABC):
     @abstractmethod
     def schedule(self)-> None:
         """
-        스케줄링 알고리즘을 실행하여 프로세스를 정해진 방식으로 처리
+        스케줄링 알고리즘을 실행하여 프로세스를 정해진 방식으로 처리(구현해야함)
         """
         pass
     
     @abstractmethod
     def assign_process(self, process: Process) -> None:
         """
-        프로세서에 프로세스를 할당하는 메서드
+        프로세서에 프로세스를 할당하는 메서드(구현해야함)
         """
         pass
     
-    
+    def process_waiting_time_update(self) -> None:
+        """
+        프로세스의 대기 시간을 업데이트
+        """
+        for process in self.processes:
+            if process.arrival <= self.current_time and not process.is_running():
+                process.wait_time+=1
+
     
     def hasNext(self)-> bool:
         """
@@ -45,6 +52,9 @@ class BaseScheduler(ABC):
         return power
     
     def processer_powerOff(self):
+        """
+        꺼야하는 프로세서의 전원을 끔
+        """
         for processor in self.processors_info:
             if processor.is_available() and processor.PowerOn:
                 processor.PowerOn = False

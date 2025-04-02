@@ -11,7 +11,6 @@ class TestSceduler(BaseScheduler):
             if processor.is_available():
                 for process in self.processes:
                     if process.start_time is None and process.arrival <= self.current_time:
-                        processor.assign_process(process)
-                        process.update_metrics(self.current_time)
+                        processor.assign_process(process,self.current_time)
                         break
  

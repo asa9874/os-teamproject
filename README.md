@@ -11,17 +11,38 @@
 - 한윤수
 
 
+## 진척도
+
+- 전반 기능
+    - WT,TT,
+
+- scheduling
+    - ✅base scheduling(추상)
+    - ❌FCFS
+    - ❌RR
+    - ❌FCFS
+    - ❌SPN
+    - ❌SRTN
+    - ❌HRRN
+    - ❌Custom-algorithm 
+    - ✅test scheduling
+
+
+- ❌시각화
+
+
+
 
 ## 책임 분담
 | 책임            | 담당 팀원  |
 | ----------------- | ---------- |
-| 프로젝트 전반      | -     |
-| FCFS              | -     |
-| RR                | -     |
-| SPN               | -     |
-| SRTN              | -     |
-| HRRN              | -     |
-| Custom-algorithm  | -     |
+| 프로젝트 전반      | 박종범     |
+| FCFS              | 박종범     |
+| RR                | 조윤재     |
+| SPN               | 한윤수     |
+| SRTN              | 김도헌     |
+| HRRN              | 김도헌     |
+| Custom-algorithm  | 한윤수    |
 | 시각화            | 조윤재    |
 
 
