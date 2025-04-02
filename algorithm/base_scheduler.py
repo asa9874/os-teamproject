@@ -9,6 +9,8 @@ class BaseScheduler(ABC):
         self.processes = processes
         self.processors_info = processors_info
         self.current_time = 0
+        self.ready_queue = []  # 대기 큐
+        
 
     @abstractmethod
     def schedule(self)-> None:
@@ -27,10 +29,27 @@ class BaseScheduler(ABC):
         """
         현재 시간과 프로세스 상태를 출력 (디버깅용)
         """
+        running_processers = [p for p in self.processors_info if p.current_process and p.current_process.is_running()]
         running_processes = [p for p in self.processes if p.is_running()]
         waiting_processes = [p for p in self.processes if not p.is_completed() and not p.is_running()]
+        ended_processes = [p for p in self.processes if p.is_completed()]
         
-        print(f"\n[Time {self.current_time}]")
-        print(f"Running: {[p.pid for p in running_processes]}")
-        print(f"Waiting: {[p.pid for p in waiting_processes]}")
+        print("-----------")
+        print(f"현재 시간: {self.current_time}")
+        print("실행 중인 프로세스")
+        for processer in running_processers:
+            print(f"프로세서 {processer.id} : ", end="")
+            processer.current_process.log_state()
+            
+        print("쉬는 프로세스")
+        for process in waiting_processes:
+            process.log_state()
+        
+        print("종료된 프로세스")
+        for process in ended_processes:
+            process.log_state()
+        print("-----------")
+        print()
+        print()
+        
         
