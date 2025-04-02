@@ -1,6 +1,6 @@
 from core import Process
 from core import Processor
-from algorithm.FCFS_scheduler import FCFSSceduler
+from algorithm.TestSceduler import TestSceduler
 
 def main():
     processes = [
@@ -12,10 +12,11 @@ def main():
         Processor(id=1, type="P"),
     ]
 
-    myScheduler = FCFSSceduler(processes, processors)
+    myScheduler = TestSceduler(processes, processors)
 
     while myScheduler.hasNext():
         myScheduler.schedule()
+        myScheduler.log_state()
     print("끝")
     
 

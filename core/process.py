@@ -6,7 +6,7 @@ class Process:
         self.start_time = None # 시작 시간
         self.wait_time = None # 대기 시간
         self.turnaround_time = None # 반환 시간
-        self.remaining_time = burst
+        self.remaining_time = burst # 남은 실행 시간
         
     def is_completed(self) -> bool:
         return self.remaining_time == 0
@@ -15,7 +15,7 @@ class Process:
         return self.start_time is not None and self.remaining_time > 0
 
     def update_metrics(self, current_time: int):
-        """프로세스의 시작 시간, 대기 시간업데이트"""
+        """프로세스의 시작 시간, 대기 시간업데이트 (프로세서한테 선택받을시 실행)"""
         if self.start_time is None:
             self.start_time = current_time
         self.wait_time = self.start_time - self.arrival

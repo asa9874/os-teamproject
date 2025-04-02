@@ -1,8 +1,6 @@
-from core.process import Process
-from core.processor import Processor
-from algorithm import BaseScheduler  # BaseScheduler가 구현된 파일에서 import
+from algorithm import BaseScheduler
 
-class FCFSSceduler(BaseScheduler):
+class TestSceduler(BaseScheduler):
     def schedule(self):
         for processor in self.processors_info:
             if processor.is_available():
@@ -14,8 +12,10 @@ class FCFSSceduler(BaseScheduler):
                         break
             else:
                 processor.execute(self.current_time)
-        self.current_time += 1  # 시간 증가
-        super().log_state()
+        self.current_time += 1
         
     def hasNext(self):
         return super().hasNext()
+
+    def log_state(self):
+        return super().log_state()
