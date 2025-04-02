@@ -19,6 +19,13 @@ class BaseScheduler(ABC):
         """
         pass
     
+    @abstractmethod
+    def assign_process(self, process: Process) -> None:
+        """
+        프로세서에 프로세스를 할당하는 메서드
+        """
+        pass
+    
     
     
     def hasNext(self)-> bool:
@@ -42,12 +49,16 @@ class BaseScheduler(ABC):
             if processor.is_available() and processor.PowerOn:
                 processor.PowerOn = False
     
+    def update_current_time(self) -> None:
+        """
+        현재 시간을 1초 증가시킴
+        """
+        self.current_time += 1
+        
     def log_state(self) -> None:
         """
         현재 시간과 프로세스 상태를 출력 (디버깅용)
         """
-        running_processers = [p for p in self.processors_info if p.current_process and p.current_process.is_running()]
-        running_processes = [p for p in self.processes if p.is_running()]
         waiting_processes = [p for p in self.processes if not p.is_completed() and not p.is_running()]
         ended_processes = [p for p in self.processes if p.is_completed()]
         
@@ -55,9 +66,14 @@ class BaseScheduler(ABC):
         print(f"현재 시간: {self.current_time}")
         print(f"현재 전력 사용량: {self.get_current_power()}")
         print("실행 중인 프로세스")
-        for processer in running_processers:
-            print(f"프로세서 {processer.id} : ", end="")
-            processer.current_process.log_state()
+        for processer in self.processors_info:
+            if(processer.PowerOn == False): print(f"[꺼짐]", end="")
+            else: print(f"[켜짐]", end="")
+            print(f"프로세서 {processer.id} |", end="")
+            if(processer.current_process):
+                processer.current_process.log_state()
+            else:
+                print("없음")
             
         print("쉬는 프로세스")
         for process in waiting_processes:
