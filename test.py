@@ -1,6 +1,6 @@
 from core import Process
 from core import Processor
-from algorithm.TestSceduler import TestSceduler
+from algorithm import FCFSSceduler
 
 
 # 시간기준은 시작을 기준임 
@@ -10,14 +10,18 @@ def main():
     processes = [
         Process(pid=1, arrival=0, burst=3),
         Process(pid=2, arrival=1, burst=7),
+        Process(pid=3, arrival=3, burst=2),
+        Process(pid=4, arrival=5, burst=5),
+        Process(pid=5, arrival=6, burst=3),
     ]
     processors = [
-        Processor(id=1, type="P"),
+        Processor(id=1, type="E"), #P or E
     ]
 
     # 테스트 할때 클래스명만 바꿔주면 됨
-    myScheduler = TestSceduler(processes, processors)
+    myScheduler = FCFSSceduler(processes, processors)
     while myScheduler.hasNext():
+        myScheduler.ready_queue_update()
         myScheduler.schedule()
         myScheduler.assign_process()
         myScheduler.processer_powerOff()

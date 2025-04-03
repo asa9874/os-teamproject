@@ -21,14 +21,13 @@
 
 - scheduling
     - ✅base scheduling(추상)
-    - ❌FCFS
+    - ✅FCFS
     - ❌RR
     - ❌FCFS
     - ❌SPN
     - ❌SRTN
     - ❌HRRN
     - ❌Custom-algorithm 
-    - ✅test scheduling
 
 
 - ❌시각화

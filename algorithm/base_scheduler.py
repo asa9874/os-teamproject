@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from core.process import Process
 from typing import List, Any
 from core.processor import Processor
-
+from collections import deque
 # 추상 클래스
 class BaseScheduler(ABC):
     def __init__(self, processes: List[Process], processors_info: List[Processor]) -> None:
         self.processes = processes
         self.processors_info = processors_info
         self.current_time = 0
-        self.ready_queue = []  # 대기 큐
+        self.ready_queue = deque()
         self.current_power = 0  # 현재 프로세서의 전력 사용량
 
     @abstractmethod
@@ -26,12 +26,19 @@ class BaseScheduler(ABC):
         """
         pass
     
+    @abstractmethod
+    def ready_queue_update(self) -> None:
+        """
+        대기 큐를 업데이트하는 메서드(구현해야함)
+        """
+        pass
+    
     def process_waiting_time_update(self) -> None:
         """
         프로세스의 대기 시간을 업데이트
         """
         for process in self.processes:
-            if process.arrival <= self.current_time and not process.is_running():
+            if process.arrival <= self.current_time and not process.is_running() and process.remaining_time > 0:
                 process.wait_time+=1
 
     
@@ -87,6 +94,10 @@ class BaseScheduler(ABC):
         print("-----------")
         print(f"현재 시간: {self.current_time}")
         print(f"현재 전력 사용량: {self.get_current_power()}")
+        print(f"현재 대기 큐:", end="")
+        for process in self.ready_queue:
+            print(f" {process.pid}", end="")
+        print()
         print("실행 중인 프로세스")
         for processer in self.processors_info:
             if(processer.PowerOn == False): print(f"[꺼짐]", end="")
