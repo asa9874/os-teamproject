@@ -65,6 +65,18 @@ class BaseScheduler(ABC):
         """
         self.current_time += 1
         
+    def get_processs(self):
+        """
+        프로세스 리스트를 반환
+        """
+        return self.processes
+    
+    def get_processors(self):
+        """
+        프로세서 리스트를 반환
+        """
+        return self.processors_info
+        
     def log_state(self) -> None:
         """
         현재 시간과 프로세스 상태를 출력 (디버깅용)
