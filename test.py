@@ -1,35 +1,64 @@
-from core import Process
-from core import Processor
+import unittest
+from core import Process, Processor
 from algorithm import FCFSSceduler
 
+class TestFCFSScheduler(unittest.TestCase):
+    def setUp(self):
+        self.processes = [
+            Process(pid=1, arrival=0, burst=3),
+            Process(pid=2, arrival=1, burst=7),
+            Process(pid=3, arrival=3, burst=2),
+            Process(pid=4, arrival=5, burst=5),
+            Process(pid=5, arrival=6, burst=3),
+        ]
+        self.processors = [
+            Processor(id=1, type="E"),  # P or E
+        ]
+        self.scheduler = FCFSSceduler(self.processes, self.processors)
 
-# 시간기준은 시작을 기준임 
-# 현재 시간: 0초 -> 0초에 프로세스 할당끝난시점,시동전력 포함
-# 현재 시간: 1초 -> 1초에 프로세스 끝,프로세스 할당끝난시점, 0초 단계 사용전략 포함
-def main():
-    processes = [
-        Process(pid=1, arrival=0, burst=3),
-        Process(pid=2, arrival=1, burst=7),
-        Process(pid=3, arrival=3, burst=2),
-        Process(pid=4, arrival=5, burst=5),
-        Process(pid=5, arrival=6, burst=3),
-    ]
-    processors = [
-        Processor(id=1, type="E"), #P or E
-    ]
+    def test_fcfs(self):
+        while self.scheduler.hasNext():
+            self.scheduler.ready_queue_update()
+            self.scheduler.schedule()
+            self.scheduler.assign_process()
+            self.scheduler.processer_powerOff()
+            self.scheduler.process_waiting_time_update()
+            self.scheduler.log_state()
+            self.scheduler.update_current_time()
+        
+        processors = self.scheduler.get_processors()
+        processes = self.scheduler.get_processs()
+        
+        self.assertEqual(processes[0].turnaround_time, 3)  
+        self.assertEqual(processes[1].turnaround_time, 9)  
+        self.assertEqual(processes[2].turnaround_time, 9)  
+        self.assertEqual(processes[3].turnaround_time, 12) 
+        self.assertEqual(processes[4].turnaround_time, 14) 
+        
+        self.assertEqual(processes[0].wait_time, 0)  
+        self.assertEqual(processes[1].wait_time, 2)  
+        self.assertEqual(processes[2].wait_time, 7)  
+        self.assertEqual(processes[3].wait_time, 7)  
+        self.assertEqual(processes[4].wait_time, 11) 
+        
+        self.assertEqual(processors[0].used_power, 0.1 + 1 *20)      
 
-    # 테스트 할때 클래스명만 바꿔주면 됨
-    myScheduler = FCFSSceduler(processes, processors)
-    while myScheduler.hasNext():
-        myScheduler.ready_queue_update()
-        myScheduler.schedule()
-        myScheduler.assign_process()
-        myScheduler.processer_powerOff()
-        myScheduler.process_waiting_time_update()
-        myScheduler.log_state()
-        myScheduler.update_current_time()
-    print("끝")
+    def test_rr(self):
+        pass
     
+    def test_spn(self):
+        pass
+    
+    def test_sptn(self):
+        pass
+    
+    def test_hrrn(self):
+        pass
+    
+    def test_custom(self):
+        pass
+    
+        
 
 if __name__ == '__main__':
-    main()
+    unittest.main()
