@@ -11,10 +11,12 @@ class Processor:
         if(self.type.upper() == 'P'):   # P코어일 경우
             self.start_power = 0.5      # 시동 전력
             self.working_power = 3.0    # 작업 전력
+            self.working_speed = 3.0    # 작업 속도
             
         else:                           # E코어일 경우       
             self.start_power = 0.1      # 시동 전력
             self.working_power = 1.0    # 작업 전력
+            self.working_speed = 1.0    # 작업 속도
         
 
     def is_available(self) -> bool:
@@ -35,11 +37,11 @@ class Processor:
     def execute(self, current_time: int):
         """현재 실행 중인 프로세스를 진행"""
         if self.current_process:
-            self.used_power += self.working_power                   # 작업 전력 사용
-            self.current_process.remaining_time -= 1                # 프로세스의 남은 시간 감소
-            if self.current_process.remaining_time <= 0:            # 프로세스가 종료된 경우
-                self.current_process.set_end()                     # 프로세스 종료 상태 설정
-                self.current_process = None                         # 현재 프로세서를 None으로 설정하여 사용 가능 상태로 변경 
+            self.used_power += self.working_power                       # 작업 전력 사용
+            self.current_process.remaining_time -= self.working_speed   # 프로세스의 남은 시간 감소
+            if self.current_process.remaining_time <= 0:                # 프로세스가 종료된 경우
+                self.current_process.set_end()                          # 프로세스 종료 상태 설정
+                self.current_process = None                             # 현재 프로세서를 None으로 설정하여 사용 가능 상태로 변경 
     
     
     def drop_process(self):

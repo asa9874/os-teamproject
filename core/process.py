@@ -30,6 +30,7 @@ class Process:
     def set_end(self) -> None:
         """프로세스의 종료 상태 설정"""
         self.running = False
+        self.remaining_time = 0
         self.turnaround_time = self.start_time + self.burst - self.arrival
         self.normalized_burst_time = self.turnaround_time / self.burst
         

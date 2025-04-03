@@ -16,19 +16,18 @@
 - 전반 기능
     - ✅ Arrival  BT  Remaining  ST  WT  TT  NTT 확인가능
     - ✅ 소비전력 확인가능
-    - ❌ 프로세서 코어 종류별 성능차이 구현
+    - ✅ 프로세서 코어 종류별 성능차이 구현
 
 
 - scheduling
     - ✅base scheduling(추상)
-    - ❌FCFS
+    - ✅FCFS
     - ❌RR
     - ❌FCFS
     - ❌SPN
     - ❌SRTN
     - ❌HRRN
     - ❌Custom-algorithm 
-    - ✅test scheduling
 
 
 - ❌시각화
