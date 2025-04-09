@@ -6,7 +6,7 @@ class Process:
         self.start_time = None # 시작 시간
         self.wait_time = 0 # 대기 시간
         self.turnaround_time = None # 반환 시간
-        self.normalized_burst_time = None # 정규화된 실행 시간 (우선순위 계산에 사용)
+        self.normalized_turnaround_time = None # 정규화된 실행 시간 (우선순위 계산에 사용)
         self.remaining_time = burst # 남은 실행 시간
         self.running = False # 실행 중인지 여부
         
@@ -32,7 +32,7 @@ class Process:
         self.running = False
         self.remaining_time = 0
         self.turnaround_time = self.start_time + self.burst - self.arrival
-        self.normalized_burst_time = self.turnaround_time / self.burst
+        self.normalized_turnaround_time = self.turnaround_time / self.burst
         
     def log_state(self) -> None:
         """프로세스의 현재 상태 출력 (디버깅용)"""
