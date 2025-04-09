@@ -36,7 +36,7 @@ class Process:
         
     def log_state(self) -> None:
         """프로세스의 현재 상태 출력 (디버깅용)"""
-        print(f"Process {self.pid}: Arrival {self.arrival}, BT {self.burst}, Remaining {self.remaining_time}, ST {self.start_time}, WT {self.wait_time}, TT {self.turnaround_time}, NTT {self.normalized_burst_time}")
+        print(f"Process {self.pid}: Arrival {self.arrival}, BT {self.burst}, Remaining {self.remaining_time}, ST {self.start_time}, WT {self.wait_time}, TT {self.turnaround_time}, NTT {self.normalized_turnaround_time}")
     
     def __repr__(self):
         return f"Process(pid={self.pid}, arrival={self.arrival}, burst={self.burst})"
