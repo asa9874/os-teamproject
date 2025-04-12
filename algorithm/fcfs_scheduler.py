@@ -4,7 +4,7 @@ class FCFSSceduler(BaseScheduler):
     def schedule(self):
         for processor in self.processors_info:
             if not processor.is_available():
-                processor.execute(self.current_time)
+                processor.execute()
         
     def assign_process(self):
         for processor in self.processors_info:
