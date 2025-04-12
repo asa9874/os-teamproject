@@ -20,15 +20,9 @@ def main():
 
     # 테스트 할때 클래스명만 바꿔주면 됨
     myScheduler = FCFSSceduler(processes, processors)
-    while myScheduler.hasNext():
-        myScheduler.ready_queue_update()
-        myScheduler.schedule()
-        myScheduler.assign_process()
-        myScheduler.processer_powerOff()
-        myScheduler.process_waiting_time_update()
-        myScheduler.log_state()
-        myScheduler.update_current_time()
+    myScheduler.simulate() # 시뮬레이션 실행
     print("끝")
+    myScheduler.log_process_queue()
     
 
 if __name__ == '__main__':
