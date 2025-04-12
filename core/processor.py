@@ -46,9 +46,15 @@ class Processor:
     
     
     def drop_process(self):
-        """현재 프로세스를 종료"""
+        """현재 프로세스를 내려놓고 대기상태로"""
         if self.current_process:
+            process = self.current_process
             self.current_process.wait() # 프로세스의 대기 상태 설정
             self.current_process = None
+
+        return process
+            
+
+        
             
     

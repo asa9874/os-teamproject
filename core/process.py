@@ -30,7 +30,7 @@ class Process:
             self.remaining_time = 0
         
     def wait(self) -> None:
-        """프로세스의 대기 상태설정"""
+        """프로세스의 대기 상태설정(ready queue에 들어갈때)"""
         self.running = False
         
     def stop(self) -> None:
