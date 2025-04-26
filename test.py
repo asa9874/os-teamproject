@@ -42,7 +42,7 @@ class TestSchedulerApp(unittest.TestCase):
 
         # processor used_power 테스트
         self.assertEqual(processors[0].used_power, 0.1 + 1 * 20)
-
+    
     def test_rr(self): 
         app = SchedulerApp(scheduler_type=SchedulerType.RR)
         # time_quantum있는 프로세서 추가
