@@ -1,6 +1,6 @@
-from algorithm import BaseScheduler
+from scheduler import BaseScheduler
 
-class CustomSceduler(BaseScheduler):
+class HRRNScheduler(BaseScheduler):
     def schedule(self):
         pass
         

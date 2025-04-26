@@ -1,6 +1,6 @@
-from algorithm import BaseScheduler
+from scheduler import BaseScheduler
 
-class SPTNSceduler(BaseScheduler):
+class RRScheduler(BaseScheduler):
     def schedule(self):
         pass
         
