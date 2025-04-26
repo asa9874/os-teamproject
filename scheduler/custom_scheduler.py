@@ -1,6 +1,6 @@
-from algorithm import BaseScheduler
+from scheduler import BaseScheduler
 
-class SPNSceduler(BaseScheduler):
+class CustomScheduler(BaseScheduler):
     def schedule(self):
         pass
         

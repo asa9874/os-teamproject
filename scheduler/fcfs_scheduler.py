@@ -1,6 +1,6 @@
-from algorithm import BaseScheduler
+from scheduler import BaseScheduler
 
-class FCFSSceduler(BaseScheduler):
+class FCFSScheduler(BaseScheduler):
     def schedule(self):
         for processor in self.processors_info:
             if not processor.is_available():

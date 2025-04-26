@@ -1,6 +1,6 @@
 import unittest
 from core import Process, Processor
-from algorithm import FCFSSceduler
+from scheduler import FCFSSceduler
 
 class TestFCFSScheduler(unittest.TestCase):
     def setUp(self):

@@ -1,6 +1,6 @@
 from core import Process
 from core import Processor
-from algorithm import FCFSSceduler
+from scheduler import FCFSScheduler
 
 
 # 시간기준은 시작을 기준임 
@@ -19,11 +19,13 @@ def main():
     ]
     
     # 테스트 할때 클래스명만 바꿔주면 됨
-    myScheduler = FCFSSceduler(processes, processors)
+    myScheduler = FCFSScheduler(processes, processors)
     myScheduler.simulate() # 시뮬레이션 실행
     print("끝")
     myScheduler.log_process_queue()
     
+
+
 
 if __name__ == '__main__':
     main()
