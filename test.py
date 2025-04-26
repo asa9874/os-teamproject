@@ -42,33 +42,6 @@ class TestSchedulerApp(unittest.TestCase):
 
         # processor used_power 테스트
         self.assertEqual(processors[0].used_power, 0.1 + 1 * 20)
-
-    def test_rr(self):
-        while self.scheduler.hasNext():
-            self.scheduler.ready_queue_update()
-            self.scheduler.schedule()
-            self.scheduler.assign_process()
-            self.scheduler.processor_power_off()
-            self.scheduler.process_waiting_time_update()
-            self.scheduler.log_state()
-            self.scheduler.update_current_time()
-        
-        processors = self.scheduler.get_processors()
-        processes = self.scheduler.get_process()
-        
-        self.assertEqual(processes[0].turnaround_time, 5)  
-        self.assertEqual(processes[1].turnaround_time, 18)  
-        self.assertEqual(processes[2].turnaround_time, 4)  
-        self.assertEqual(processes[3].turnaround_time, 15) 
-        self.assertEqual(processes[4].turnaround_time, 12) 
-        
-        self.assertEqual(processes[0].wait_time, 2)  
-        self.assertEqual(processes[1].wait_time, 11)  
-        self.assertEqual(processes[2].wait_time, 2)  
-        self.assertEqual(processes[3].wait_time, 10)  
-        self.assertEqual(processes[4].wait_time, 9) 
-        
-        self.assertEqual(processors[0].used_power, 0.1 + 1 *20) 
     
     def test_rr(self): 
         app = SchedulerApp(scheduler_type=SchedulerType.RR)
