@@ -1,4 +1,3 @@
-import heapq
 from scheduler import BaseScheduler
 
 class RRScheduler(BaseScheduler):
@@ -15,6 +14,7 @@ class RRScheduler(BaseScheduler):
             if not processor.is_available() and processor.is_time_quantum_expired(self.current_time):
                 self.ready_queue.appendleft(processor.current_process)
                 processor.drop_process()
+            
             # 비어있는 경우 할당
             if processor.is_available():
                 if self.ready_queue:

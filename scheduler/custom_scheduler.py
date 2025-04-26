@@ -6,6 +6,3 @@ class CustomScheduler(BaseScheduler):
         
     def assign_process(self):
         pass         
-    
-    def ready_queue_update(self):
-        pass
