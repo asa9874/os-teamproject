@@ -1,43 +1,76 @@
+from typing import List
 from core.process import Process
 from core.processor import Processor
-from scheduler import FCFSSceduler
+from scheduler import (
+    BaseScheduler,
+    FCFSScheduler,
+    RRScheduler,
+    SPNScheduler,
+    HRRNScheduler,
+    SPTNScheduler,
+    CustomScheduler,
+    SchedulerType,
+)
 
 class SchedulerApp:
-    def __init__(self):
-        self.processes = []
-        self.processors = []
-        self.scheduler = None
+    def __init__(self, scheduler_type: SchedulerType = SchedulerType.FCFS) -> None:
+        self.processes: List[Process] = []
+        self.processors: List[Processor] = []
+        self.scheduler_type: SchedulerType = scheduler_type
+        self.scheduler: BaseScheduler = None
+        
+        self.scheduler_map = {
+            SchedulerType.FCFS: FCFSScheduler,
+            SchedulerType.RR: RRScheduler,
+            SchedulerType.SPN: SPNScheduler,
+            SchedulerType.HRRN: HRRNScheduler,
+            SchedulerType.SPTN: SPTNScheduler,
+            SchedulerType.CUSTOM: CustomScheduler,
+        }
 
-    def setup_processes(self) -> None:
-        self.processes = [
-            Process(pid=1, arrival=0, burst=3),
-            Process(pid=2, arrival=1, burst=7),
-            Process(pid=3, arrival=3, burst=2),
-            Process(pid=4, arrival=5, burst=5),
-            Process(pid=5, arrival=6, burst=3),
-        ]
+    # 프로세스 관련 메서드
+    def add_process(self, pid: int, arrival: int, burst: int) -> None:
+        self.processes.append(Process(pid=pid, arrival=arrival, burst=burst))
 
-    def setup_processors(self) -> None:
-        self.processors = [
-            Processor(id=1, type="E"),  # P 또는 E
-        ]
+    def add_processes(self, process_list: List[Process]) -> None:
+        self.processes.extend(process_list)
 
+    def remove_process(self, pid: int) -> None:
+        self.processes = [p for p in self.processes if p.pid != pid]
+
+    def reset_processes(self) -> None:
+        self.processes.clear()
+
+    # 프로세서 관련 메서드
+    def add_processor(self, id: int, type: str) -> None:
+        self.processors.append(Processor(id=id, type=type))
+    
+    def add_processors(self, processor_list: List[Processor]) -> None:
+        self.processors.extend(processor_list)
+
+    def remove_processor(self, id: int) -> None:
+        self.processors = [p for p in self.processors if p.id != id]
+
+    def reset_processors(self) -> None:
+        self.processors.clear()
+
+    # 스케줄러 관련 메서드
+    def select_scheduler(self) -> None:
+        scheduler_class = self.scheduler_map.get(self.scheduler_type)
+        if scheduler_class is None:
+            raise ValueError(f"지원하지 않는 스케줄러 유형입니다: {self.scheduler_type}")
+        self.scheduler = scheduler_class(self.processes, self.processors)
+
+    # 시뮬레이션 관련 메서드
     def run_scheduler(self) -> None:
-        # 여기에 테스트할 스케줄러 클래스명을 바꾸기만 하면 됨
-        self.scheduler = FCFSScheduler(self.processes, self.processors)
         self.scheduler.simulate()
 
     def print_results(self) -> None:
         print("끝")
-        self.scheduler.log_process_queue()
+        if self.scheduler:
+            self.scheduler.log_process_queue()
 
     def run(self) -> None:
-        self.setup_processes()
-        self.setup_processors()
+        self.select_scheduler()
         self.run_scheduler()
         self.print_results()
-
-
-if __name__ == '__main__':
-    app = SchedulerApp()
-    app.run()
