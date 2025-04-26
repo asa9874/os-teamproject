@@ -1,24 +1,21 @@
 from scheduler import BaseScheduler
 
 class RRScheduler(BaseScheduler):
-    def __init__(self, processes, processors_info, time_quantum: int) -> None:
-        super().__init__(processes, processors_info)
-        self.time_quantum = time_quantum
-
     # RRScheduler는 FCFS와 비슷하게 처리된다.
     def schedule(self):
         for processor in self.processors_info:
             if not processor.is_available():
                 processor.execute()
                 
-    # RRScheduler는 기본적으로 FCFS를 따르지만 할당량 초과 시 회수 및 할당이 이루어진다.
+    # RRScheduler는 FCFS처럼 할당하지만 할당량 만료 시 회수가 이루어진다.
     def assign_process(self):
         for processor in self.processors_info:
             # 실행 중이면 할당량 만료시 회수
-            if not processor.is_available() and self.current_time - processor.current_process.start_time >= self.time_quantum:
+            if not processor.is_available() and processor.is_time_quantum_expired(self.current_time):
                 self.ready_queue.appendleft(processor.current_process)
                 processor.drop_process()
-            if processor.is_available():     # 비어있는 경우 할당
+            # 비어있는 경우 할당
+            if processor.is_available():
                 if self.ready_queue:
                     process = self.ready_queue.pop() #FIFO 방식으로 프로세스 할당
                     processor.assign_process(process,self.current_time)
