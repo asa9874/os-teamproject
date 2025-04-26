@@ -1,6 +1,6 @@
 import unittest
 from core import Process, Processor
-from scheduler import FCFSSceduler
+from scheduler import FCFSScheduler
 
 class TestFCFSScheduler(unittest.TestCase):
     def setUp(self):
@@ -14,7 +14,7 @@ class TestFCFSScheduler(unittest.TestCase):
         self.processors = [
             Processor(id=1, type="E"),  # P or E
         ]
-        self.scheduler = FCFSSceduler(self.processes, self.processors)
+        self.scheduler = FCFSScheduler(self.processes, self.processors)
 
     def test_fcfs(self):
         while self.scheduler.hasNext():
@@ -27,7 +27,7 @@ class TestFCFSScheduler(unittest.TestCase):
             self.scheduler.update_current_time()
         
         processors = self.scheduler.get_processors()
-        processes = self.scheduler.get_proccesss()
+        processes = self.scheduler.get_process()
         
         self.assertEqual(processes[0].turnaround_time, 3)  
         self.assertEqual(processes[1].turnaround_time, 9)  

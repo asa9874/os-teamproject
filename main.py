@@ -1,7 +1,7 @@
 from core import Process
 from core import Processor
 from scheduler import FCFSScheduler
-from simulater import SchedulerApp
+from simulator import SchedulerApp
 from scheduler import SchedulerType
 
 # 시간기준은 시작을 기준임 
