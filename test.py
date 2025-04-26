@@ -95,7 +95,34 @@ class TestSchedulerApp(unittest.TestCase):
         self.assertEqual(processes[4].wait_time, 9)
 
         # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, ) # 계산후 추가해주세요
+        self.assertEqual(processors[0].used_power,  0.1 + 1 * 20) 
+
+    def test_rr3(self): 
+        app = SchedulerApp(scheduler_type=SchedulerType.RR)
+        # time_quantum있는 프로세서 추가
+        app.add_processes(self.processes)
+        app.add_processor(id=1, type="E", time_quantum=3)
+        app.run()
+
+        processes = app.scheduler.get_process()
+        processors = app.scheduler.get_processors()
+
+        # turnaround_time 테스트
+        self.assertEqual(processes[0].turnaround_time, 3)
+        self.assertEqual(processes[1].turnaround_time, 19)
+        self.assertEqual(processes[2].turnaround_time, 5)
+        self.assertEqual(processes[3].turnaround_time, 14)
+        self.assertEqual(processes[4].turnaround_time, 8)
+
+        # wait_time 테스트
+        self.assertEqual(processes[0].wait_time, 0)
+        self.assertEqual(processes[1].wait_time, 12)
+        self.assertEqual(processes[2].wait_time, 3)
+        self.assertEqual(processes[3].wait_time, 9)
+        self.assertEqual(processes[4].wait_time, 5)
+
+        # processor used_power 테스트
+        self.assertEqual(processors[0].used_power,  0.1 + 1 * 20) 
 
     def test_spn(self):
         app = SchedulerApp(scheduler_type=SchedulerType.SPN)
@@ -121,7 +148,7 @@ class TestSchedulerApp(unittest.TestCase):
         self.assertEqual(processes[4].wait_time, 4)
 
         # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, ) # 계산후 추가해주세요
+        self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
     def test_sptn(self):
         app = SchedulerApp(scheduler_type=SchedulerType.SPTN)
@@ -147,7 +174,7 @@ class TestSchedulerApp(unittest.TestCase):
         self.assertEqual(processes[4].wait_time, ) # 계산후 추가해주세요
 
         # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, ) # 계산후 추가해주세요
+        self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
     def test_hrrn(self):
         app = SchedulerApp(scheduler_type=SchedulerType.HRRN)
@@ -173,7 +200,7 @@ class TestSchedulerApp(unittest.TestCase):
         self.assertEqual(processes[4].wait_time, 6)
 
         # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, )# 계산후 추가해주세요
+        self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
     def test_custom(self):
         app = SchedulerApp(scheduler_type=SchedulerType.CUSTOM)
@@ -199,11 +226,11 @@ class TestSchedulerApp(unittest.TestCase):
         self.assertEqual(processes[4].wait_time, ) # 계산후 추가해주세요
 
         # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, ) # 계산후 추가해주세요
+        self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
 
 if __name__ == '__main__':
-    choice = input("실행할 스케줄러 입력 (fcfs, rr, spn, hrrn, sptn, custom, all): ").strip().lower()
+    choice = input("실행할 스케줄러 입력 (fcfs, rr,rr3, spn, hrrn, sptn, custom, all): ").strip().lower()
     
     suite = unittest.TestSuite()
 
@@ -211,6 +238,8 @@ if __name__ == '__main__':
         suite.addTest(TestSchedulerApp('test_fcfs'))
     elif choice == 'rr':
         suite.addTest(TestSchedulerApp('test_rr'))
+    elif choice == 'rr3':
+        suite.addTest(TestSchedulerApp('test_rr3'))
     elif choice == 'spn':
         suite.addTest(TestSchedulerApp('test_spn'))
     elif choice == 'hrrn':

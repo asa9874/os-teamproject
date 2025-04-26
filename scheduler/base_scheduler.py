@@ -3,6 +3,8 @@ from core.process import Process
 from typing import List, Any
 from core.processor import Processor
 from collections import deque
+import heapq
+
 # 추상 클래스
 class BaseScheduler(ABC):
     def __init__(self, processes: List[Process], processors_info: List[Processor]) -> None:
@@ -41,14 +43,19 @@ class BaseScheduler(ABC):
         """
         pass
     
-    @abstractmethod
     def ready_queue_update(self) -> None:
         """
-        대기 큐를 업데이트하는 메서드(구현해야함)
-        새로 들어오는 프로세스 우선 추가 해주세요
-        첫 입장처리 => 다시 입장처리 
+        대기 큐를 업데이트하는 메서드
+        충돌시 PID가 큰게 우선으로 할당됩니다.
         """
-        pass
+        process_priority_queue = []
+        for process in self.processes:
+            # 프로세스가 도착했지만 대기 큐에 없고 실행 중이지 않으며 남은 시간이 있는 경우
+            if process.arrival <= self.current_time and not process.is_running() and process not in self.ready_queue and process.remaining_time > 0:
+                heapq.heappush(process_priority_queue, (-process.pid, process))
+        while process_priority_queue:
+            process = heapq.heappop(process_priority_queue)[1]
+            self.ready_queue.appendleft(process)
 
 
     def process_waiting_time_update(self) -> None:
@@ -86,16 +93,6 @@ class BaseScheduler(ABC):
             if processor.is_available() and processor.PowerOn:
                 processor.PowerOn = False
     
-    def enqueue_arrived_processes(self) -> None:
-        """
-        도착한 프로세스를 대기 큐에 추가하는 메서드
-        """
-        for process in self.processes:
-            # 프로세스가 도착했지만 대기 큐에 없고 실행 중이지 않으며 남은 시간이 있는 경우
-            if process.arrival <= self.current_time and not process.is_running() and process not in self.ready_queue and process.remaining_time > 0:
-                self.ready_queue.appendleft(process)
-    
-
     def update_current_time(self) -> None:
         self.current_time += 1
         
@@ -104,9 +101,6 @@ class BaseScheduler(ABC):
     
     def get_processors(self):
         return self.processors_info
-        
-    
-
 
     # 디버깅용 출력 메서드들
 
