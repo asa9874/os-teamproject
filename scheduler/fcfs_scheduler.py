@@ -4,7 +4,7 @@ class FCFSScheduler(BaseScheduler):
     def schedule(self):
         for processor in self.processors_info:
             if not processor.is_available():
-                processor.execute()
+                processor.execute(self.current_time)
         
 
     # FCFSScheduler는 단순하게 대기 큐의 가장앞에서 프로세스를 할당한다.

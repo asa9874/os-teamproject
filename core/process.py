@@ -33,11 +33,11 @@ class Process:
         """프로세스의 대기 상태설정(ready queue에 들어갈때)"""
         self.running = False
         
-    def stop(self) -> None:
+    def stop(self, current_time: int) -> None:
         """프로세스의 종료 상태 설정"""
         self.running = False
         self.remaining_time = 0
-        self.turnaround_time = self.start_time + self.burst - self.arrival
+        self.turnaround_time = current_time - self.arrival
         self.normalized_turnaround_time = self.turnaround_time / self.burst
         
     def log_state(self) -> None:
