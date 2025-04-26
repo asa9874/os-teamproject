@@ -13,7 +13,7 @@
 
 ## 진척도
 
-- scheduling
+- scheduling  (충돌시 PID를 기준으로 높은 PID를 먼저 처리하게 구현해주세요)
     - ✅base scheduling(추상)
     - ✅FCFS
     - ❌RR
