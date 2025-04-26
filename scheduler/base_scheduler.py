@@ -129,6 +129,7 @@ class BaseScheduler(ABC):
             if(processer.PowerOn == False): print(f"[꺼짐]", end="")
             else: print(f"[켜짐]", end="")
             print(f"프로세서 {processer.id} |", end="")
+            if(processer.time_quantum is not None): print(f"시간 쿼텀: {processer.time_quantum}", end="")
             if(processer.current_process):
                 processer.current_process.log_state()
             else:
