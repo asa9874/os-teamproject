@@ -20,7 +20,7 @@ class BaseScheduler(ABC):
             self.ready_queue_update()           # 대기 큐 업데이트
             self.schedule()                     # 스케줄링 알고리즘 실행
             self.assign_process()               # 프로세서에 프로세스 할당
-            self.processer_powerOff()           # 프로세서 전원 끄기
+            self.processor_power_off()           # 프로세서 전원 끄기
             self.process_waiting_time_update()  # 대기 중인 프로세스의 대기 시간 업데이트
             self.log_state()                    # 현재 상태 출력 (디버깅용)
             self.update_current_time()          # 현재 시간 업데이트
@@ -34,7 +34,7 @@ class BaseScheduler(ABC):
         pass
     
     @abstractmethod
-    def assign_process(self, process: Process) -> None:
+    def assign_process(self) -> None:
         """
         프로세서에 레디큐의 프로세스를 할당하는 메서드(구현해야함)
         
@@ -56,6 +56,7 @@ class BaseScheduler(ABC):
         대기 중인 프로세스의 대기 시간을 업데이트하는 메서드
         """
         for process in self.processes:
+            # 프로세스가 도착했지만 실행 중이지 않으며 남은 시간이 있는 경우
             if process.arrival <= self.current_time and not process.is_running() and process.remaining_time > 0:
                 process.wait_time+=1
 
@@ -76,7 +77,7 @@ class BaseScheduler(ABC):
             power += processor.used_power
         return power
     
-    def processer_powerOff(self):
+    def processor_power_off(self):
         """
         프로세서의 전원을 끄는 메서드
         (할당된 프로세스가 없고 대기 중인 프로세스가 없고 전원이 켜져 있는 경우)

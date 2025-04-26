@@ -21,7 +21,7 @@ class TestFCFSScheduler(unittest.TestCase):
             self.scheduler.ready_queue_update()
             self.scheduler.schedule()
             self.scheduler.assign_process()
-            self.scheduler.processer_powerOff()
+            self.scheduler.processor_power_off()
             self.scheduler.process_waiting_time_update()
             self.scheduler.log_state()
             self.scheduler.update_current_time()
