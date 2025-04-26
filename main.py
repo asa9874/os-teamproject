@@ -17,7 +17,7 @@ def main():
         Process(pid=5, arrival=6, burst=3),
     ]
     app.add_processes(processes)
-    app.add_processor(id=1, type="E")
+    app.add_processor(id=1, type="E", time_quantum=2)
     app.run()
     
 

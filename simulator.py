@@ -42,8 +42,8 @@ class SchedulerApp:
         self.processes.clear()
 
     # 프로세서 관련 메서드
-    def add_processor(self, id: int, type: str) -> None:
-        self.processors.append(Processor(id=id, type=type))
+    def add_processor(self, id: int, type: str, time_quantum: int = None) -> None: #time_quantum은 RR용으로만 사용됨
+        self.processors.append(Processor(id=id, type=type, time_quantum=time_quantum))
     
     def add_processors(self, processor_list: List[Processor]) -> None:
         self.processors.extend(processor_list)
