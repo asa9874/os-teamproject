@@ -98,7 +98,7 @@ class BaseScheduler(ABC):
     def update_current_time(self) -> None:
         self.current_time += 1
         
-    def get_processs(self):
+    def get_proccesss(self):
         return self.processes
     
     def get_processors(self):

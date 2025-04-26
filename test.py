@@ -27,7 +27,7 @@ class TestFCFSScheduler(unittest.TestCase):
             self.scheduler.update_current_time()
         
         processors = self.scheduler.get_processors()
-        processes = self.scheduler.get_processs()
+        processes = self.scheduler.get_proccesss()
         
         self.assertEqual(processes[0].turnaround_time, 3)  
         self.assertEqual(processes[1].turnaround_time, 9)  
