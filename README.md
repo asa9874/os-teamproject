@@ -17,8 +17,7 @@
     - ✅base scheduling(추상)
     - ✅FCFS
     - ✅RR
-    - ❌FCFS
-    - ❌SPN
+    - ✅SPN
     - ❌SRTN
     - ❌HRRN
     - ❌Custom-algorithm 
