@@ -156,4 +156,12 @@ class BaseScheduler(ABC):
                 row += f"{cell.rjust(cell_width)}"
             print(row)
 
+        # 평균 NTT 값 (성능평가용)
+        ended_processes = [p for p in self.processes if p.is_completed()]
+        sum_ntt = 0
+        for process in ended_processes:
+            sum_ntt += process.normalized_turnaround_time
+        avg_ntt = sum_ntt / len(ended_processes)
+        print("평균 NTT : ", avg_ntt)
+
         
