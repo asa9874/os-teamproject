@@ -2,11 +2,6 @@ from scheduler import BaseScheduler
 from collections import deque
 
 class HRRNScheduler(BaseScheduler):
-    def schedule(self): #HRRN스케쥴링 Response Ratio에 대해 프로세스를 실행하는 비선점 방식 스케줄링
-        for processor in self.processors_info:
-            if not processor.is_available():
-                processor.execute(self.current_time)
-
     def assign_process(self):
         for processor in self.processors_info:
             if processor.is_available():
@@ -16,7 +11,6 @@ class HRRNScheduler(BaseScheduler):
                 if self.ready_queue:
                     process = self.ready_queue.popleft()
                     processor.assign_process(process, self.current_time)
-                    break
 
     def calculate_response_ratio(self, process):
         #Response Ratio = (WT + BT) / BT

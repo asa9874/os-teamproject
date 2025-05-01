@@ -61,7 +61,7 @@ class Processor:
             if self.current_process.is_completed():                     # 프로세스가 종료된 경우
                 self.current_process.stop(current_time)                             # 프로세스 종료 상태 설정
                 self.current_process = None                             # 현재 프로세서를 None으로 설정하여 사용 가능 상태로 변경 
-        else:
+        elif current_time != 0: 
             self.process_queue.append(0)                                # 현재 프로세스가 없을 경우 '0' 추가 (디버깅용)
     
     

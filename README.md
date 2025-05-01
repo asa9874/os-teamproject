@@ -18,8 +18,8 @@
     - ✅FCFS
     - ✅RR
     - ✅SPN
-    - ❌SRTN
-    - ❌HRRN
+    - ✅SRTN
+    - ✅HRRN
     - ❌Custom-algorithm 
 
 
