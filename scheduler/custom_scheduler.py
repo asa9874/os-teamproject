@@ -1,6 +1,6 @@
 from collections import deque
 
-"""]
+"""
 CustomAlgorithm => RR + FinishDelay(RemainingTime이 1초 남았을 때 대기상태)
 동기: 가장 비효율적인 최악의 스케줄링을 구현해보자
 
