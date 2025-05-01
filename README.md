@@ -21,7 +21,7 @@
     - ❌SPN
     - ❌SRTN
     - ❌HRRN
-    - ❌Custom-algorithm 
+    - ✅Custom-algorithm 
 
 
 - ❌시각화
