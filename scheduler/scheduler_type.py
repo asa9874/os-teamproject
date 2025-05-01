@@ -5,5 +5,5 @@ class SchedulerType(Enum):
     RR = "rr"
     SPN = "spn"
     HRRN = "hrrn"
-    SPTN = "sptn"
+    SRTN = "srtn"
     CUSTOM = "custom"

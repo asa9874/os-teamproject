@@ -123,8 +123,8 @@ class TestSchedulerApp(unittest.TestCase):
         # processor used_power 테스트
         self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
-    def test_sptn(self):
-        app = SchedulerApp(scheduler_type=SchedulerType.SPTN)
+    def test_srtn(self):
+        app = SchedulerApp(scheduler_type=SchedulerType.SRTN)
         app.add_processes(self.processes)
         app.add_processors(self.processors)
         app.run()
@@ -133,18 +133,18 @@ class TestSchedulerApp(unittest.TestCase):
         processors = app.scheduler.get_processors()
 
         # turnaround_time 테스트
-        self.assertEqual(processes[0].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[1].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[2].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[3].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[4].turnaround_time, ) # 계산후 추가해주세요
+        self.assertEqual(processes[0].turnaround_time, 3)
+        self.assertEqual(processes[1].turnaround_time, 19)
+        self.assertEqual(processes[2].turnaround_time, 2)
+        self.assertEqual(processes[3].turnaround_time, 8)
+        self.assertEqual(processes[4].turnaround_time, 3)
 
         # wait_time 테스트
-        self.assertEqual(processes[0].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[1].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[2].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[3].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[4].wait_time, ) # 계산후 추가해주세요
+        self.assertEqual(processes[0].wait_time, 0)
+        self.assertEqual(processes[1].wait_time, 12)
+        self.assertEqual(processes[2].wait_time, 0)
+        self.assertEqual(processes[3].wait_time, 3)
+        self.assertEqual(processes[4].wait_time, 0)  
 
         # processor used_power 테스트
         self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
@@ -203,7 +203,7 @@ class TestSchedulerApp(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    choice = input("실행할 스케줄러 입력 (fcfs, rr,rr3, spn, hrrn, sptn, custom, all): ").strip().lower()
+    choice = input("실행할 스케줄러 입력 (fcfs, rr,rr3, spn, hrrn, srtn, custom, all): ").strip().lower()
     
     suite = unittest.TestSuite()
 
@@ -217,8 +217,8 @@ if __name__ == '__main__':
         suite.addTest(TestSchedulerApp('test_spn'))
     elif choice == 'hrrn':
         suite.addTest(TestSchedulerApp('test_hrrn'))
-    elif choice == 'sptn':
-        suite.addTest(TestSchedulerApp('test_sptn'))
+    elif choice == 'srtn':
+        suite.addTest(TestSchedulerApp('test_srtn'))
     elif choice == 'custom':
         suite.addTest(TestSchedulerApp('test_custom'))
     else:

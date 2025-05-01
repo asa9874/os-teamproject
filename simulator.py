@@ -7,7 +7,7 @@ from scheduler import (
     RRScheduler,
     SPNScheduler,
     HRRNScheduler,
-    SPTNScheduler,
+    SRTNScheduler,
     CustomScheduler,
     SchedulerType,
 )
@@ -24,7 +24,7 @@ class SchedulerApp:
             SchedulerType.RR: RRScheduler,
             SchedulerType.SPN: SPNScheduler,
             SchedulerType.HRRN: HRRNScheduler,
-            SchedulerType.SPTN: SPTNScheduler,
+            SchedulerType.SRTN: SRTNScheduler,
             SchedulerType.CUSTOM: CustomScheduler,
         }
 
