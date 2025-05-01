@@ -28,12 +28,6 @@ class BaseScheduler(ABC):
             self.update_current_time()          # 현재 시간 업데이트
 
     
-    @abstractmethod
-    def schedule(self)-> None:
-        """
-        스케줄링 알고리즘을 실행하여 프로세스를 정해진 방식으로 처리(구현해야함)
-        """
-        pass
     
     @abstractmethod
     def assign_process(self) -> None:
@@ -42,6 +36,14 @@ class BaseScheduler(ABC):
         
         """
         pass
+    
+    
+    def schedule(self)-> None:
+        """
+        프로세서들을 일시키는 메서드(프로세스 할당여부는 execute에서 확인함)
+        """
+        for processor in self.processors_info:
+            processor.execute(self.current_time)
     
     def ready_queue_update(self) -> None:
         """

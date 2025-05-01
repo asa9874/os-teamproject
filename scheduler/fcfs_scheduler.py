@@ -1,10 +1,5 @@
 from scheduler import BaseScheduler
 class FCFSScheduler(BaseScheduler):
-    def schedule(self):
-        for processor in self.processors_info:
-            if not processor.is_available():
-                processor.execute(self.current_time)
-        
     # FCFSScheduler는 단순하게 대기 큐의 가장앞에서 프로세스를 할당한다.
     def assign_process(self):
         for processor in self.processors_info:
@@ -12,6 +7,5 @@ class FCFSScheduler(BaseScheduler):
                 if self.ready_queue:
                     process = self.ready_queue.pop() #FIFO 방식으로 프로세스 할당
                     processor.assign_process(process,self.current_time)
-                    break
 
         
