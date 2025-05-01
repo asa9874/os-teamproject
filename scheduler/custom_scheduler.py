@@ -1,62 +1,48 @@
 from collections import deque
 
-"""
-CustomAlgorithm => LRTN(Long Remaining Time Next)
+"""]
+CustomAlgorithm => RR + FinishDelay(RemainingTime이 1초 남았을 때 대기상태)
 동기: 가장 비효율적인 최악의 스케줄링을 구현해보자
 
-아이디어: SRTN을 반대로 생각해서 convoy 효과, starvation 효과를 극대화하자
-즉 평균 NTT값을 높여보자
+아이디어: RR(qt=1) => 과도한 contextSwitching -> overhead 극대화
+        FinishDelay => starvation, avg_NTT 극대화
 
-"""
+평가지표: 모든 p의 평균 NTT값
 
-"""
-만약 context switching에 자원이 든다면
-rr방식(1초마다) + finishDelay(프로세스 1초 남았을 때 대기상태로 돌릴 예정
+제약: 프로세서가 쉬면 안됨
 """
 
 from scheduler import BaseScheduler
 
 class CustomScheduler(BaseScheduler):
+    # CustomScheduler는 기본적으로 RR(qt=1)기반으로 작동함.
     def schedule(self):
         for processor in self.processors_info:
             if not processor.is_available():
                 processor.execute(self.current_time)
-        
-    def assign_process(self):
-        def detect_arrivals(current_time) -> bool: # 현재시간, 프로세스들의 도착 시간을 비교함 -> 둘이 같을 경우 프로세스 도착 확인(True)
-            arrivals = [i.arrival for i in self.ready_queue]
 
-            return current_time in arrivals
+    def assign_process(self):
+        def avg_RT(): # readyQueue의 평균 RT값
+            return sum([i.remaining_time for i in self.ready_queue]) / (len(self.ready_queue)) if self.ready_queue else 0
 
         for processor in self.processors_info:
-            # 사용중일 경우
+            # 프로세서 사용 불가 경우
             if not processor.is_available():
-                # 현재 프로세스 RT <= 1 경우 맨 뒤로 보냄
-                if processor.current_process.remaining_time <= 1 and self.ready_queue:
-                    print("delay")
-                    self.ready_queue.appendleft(processor.current_process)
-                    processor.drop_process()
+                if processor.is_time_quantum_expired(self.current_time):
+                    self.ready_queue.appendleft(processor.current_process)  # 대기 큐의 맨 앞에 추가
+                    processor.drop_process()  # 프로세서를 비움
             
-                # 신규 도착 -> 더 긴 작업이 있을 경우 선점
-                elif detect_arrivals(self.current_time) and len(self.ready_queue)+1 > 1: # 프로세스 도착 & 프로세스수 2개 이상
-                    self.ready_queue = deque(sorted(self.ready_queue, key = lambda p: (p.remaining_time, p.arrival))) # 남은 시간 순으로 오름차순
-                    Longest_RT_P = self.ready_queue[-1]
-                    #print(Longest_RT_P.remaining_time, processor.current_process.remaining_time)
-
-                    if Longest_RT_P.remaining_time > processor.current_process.remaining_time: # 현재 프로세스의 RT값 보다 큰 RT가 ReadyQueue에 있을 경우 선점
-                        print("RT")
-                        self.ready_queue.appendleft(processor.current_process)
-                        processor.drop_process()
-
-            # 비어있는 경우 할당
+            # 프로세서 사용 가능 경우
             if processor.is_available():
-                if self.ready_queue:
-                    process = self.ready_queue.pop() #FIFO 방식으로 프로세스 할당
-                    processor.assign_process(process,self.current_time)
-                    break
-
-    
-
-    
-    
-    
+                if self.ready_queue: # 대기 큐에 프로세스가 존재하는 경우
+                    if avg_RT() > 1: # readyQueue에 RT값이 1이상인 프로세스가 존재하는 경우
+                        while self.ready_queue[-1].remaining_time <= 1: # ready_queue[-1]의 RT값이 1이상이 나올때 까지 appendleft
+                            last_process = self.ready_queue.pop()
+                            self.ready_queue.appendleft(last_process)
+                            
+                    else:
+                        self.ready_queue = deque(sorted(self.ready_queue, key = lambda p: (p.burst, p.arrival))) # 평균 NTT 상승을 위한 프로세스 BT순으로 정렬
+                        
+                    # FIFO 방식으로 대기 큐에서 프로세스를 할당
+                    process = self.ready_queue.pop()
+                    processor.assign_process(process, self.current_time)
