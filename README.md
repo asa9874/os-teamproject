@@ -17,13 +17,10 @@
     - ✅base scheduling(추상)
     - ✅FCFS
     - ✅RR
-    - ❌FCFS
-    - ❌SPN
-    - ❌SRTN
-    - ❌HRRN
+    - ✅SPN
+    - ✅SRTN
+    - ✅HRRN
     - ✅Custom-algorithm 
-
-
 - ❌시각화
 
 
