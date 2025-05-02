@@ -18,11 +18,9 @@
     - ✅FCFS
     - ✅RR
     - ✅SPN
-    - ❌SRTN
-    - ❌HRRN
-    - ❌Custom-algorithm 
-
-
+    - ✅SRTN
+    - ✅HRRN
+    - ✅Custom-algorithm 
 - ❌시각화
 
 
