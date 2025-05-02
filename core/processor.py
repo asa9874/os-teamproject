@@ -14,7 +14,7 @@ class Processor:
         if(self.type.upper() == 'P'):           # P코어일 경우
             self.start_power = 0.5              # 시동 전력 
             self.working_power = 3.0            # 작업 전력
-            self.working_speed = 3.0            # 작업 속도
+            self.working_speed = 2.0            # 작업 속도
             
         else:                                   # E코어일 경우       
             self.start_power = 0.1              # 시동 전력

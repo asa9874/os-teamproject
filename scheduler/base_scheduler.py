@@ -9,7 +9,8 @@ import heapq
 class BaseScheduler(ABC):
     def __init__(self, processes: List[Process], processors_info: List[Processor]) -> None:
         self.processes = processes                  # 프로세스 리스트
-        self.processors_info = processors_info      # 프로세서 정보
+        # P 코어 우선할당
+        self.processors_info = sorted(processors_info, key=lambda p: 0 if p.type.upper() == 'P' else 1)
         self.current_time = 0                       # 현재 시간
         self.ready_queue = deque()                  # 대기 큐
         self.current_power = 0                      # 현재 프로세서의 전력 사용량
