@@ -16,7 +16,9 @@ from scheduler.base_scheduler import BaseScheduler
 # 상수 정의
 MAX_PROCESSES = 15
 MAX_PROCESSORS = 4
-
+"""
+이전버전 GUI임 최종제출때는 제외할것
+"""
 class SchedulerGUI(tk.Tk):
     def __init__(self):
         super().__init__()

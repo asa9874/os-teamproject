@@ -17,7 +17,9 @@ from scheduler.base_scheduler import BaseScheduler
 # 상수 정의
 MAX_PROCESSES = 15
 MAX_PROCESSORS = 4
-
+""" 
+pip install customtkinter 한후에 실행가능
+"""
 class SchedulerGUI2(ctk.CTk):
     def __init__(self):
         super().__init__()
