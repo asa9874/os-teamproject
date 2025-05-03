@@ -22,7 +22,7 @@ class SchedulerGUI2(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("프로세스 스케줄링 시뮬레이터")
-        self.geometry("1250x650")
+        self.geometry("1250x700")
 
         # 데이터 저장용 변수
         self.app = SchedulerApp()
