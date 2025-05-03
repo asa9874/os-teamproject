@@ -2,79 +2,96 @@ from core import Process
 
 class Processor:
     def __init__(self, id: int, type: str, time_quantum: int = None):
-        self.id = id                            # 프로세서 ID
-        self.type = type                        # 'P' 또는 'E'
-        self.current_process: Process = None    # 현재 실행 중인 프로세스
-        self.used_power = 0.0                   # 사용한 전력량
-        self.PowerOn = False                    # 프로세서가 켜져 있는지 여부
-        self.process_queue = []                 # 프로세스 시간별큐(디버깅용)
-        self.time_quantum_original = time_quantum  # 원래 시간 쿼텀 (RR 이외에는 매개변수 넣지마세요)
-        self.time_quantum = time_quantum        # 프로세서의 시간 쿼텀 (RR 이외에는 매개변수 넣지마세요)
+        self.id = id                                # 프로세서 ID
+        self.type = type                            # 'P' 또는 'E' 코어 구분
+        self.current_process: Process = None        # 현재 실행 중인 프로세스
+        self.used_power = 0.0                       # 누적 사용 전력량
+        self.PowerOn = False                        # 프로세서 전원 상태
+        self.process_queue = []                     # 디버깅용 프로세스 실행 로그
+        self.time_quantum_original = time_quantum   # 초기 시간 쿼텀 (RR 스케줄링용)
+        self.time_quantum = time_quantum            # 남은 시간 쿼텀 (RR 스케줄링용)
         
-        if(self.type.upper() == 'P'):           # P코어일 경우
-            self.start_power = 0.5              # 시동 전력 
-            self.working_power = 3.0            # 작업 전력
-            self.working_speed = 2.0            # 작업 속도
-            
-        else:                                   # E코어일 경우       
-            self.start_power = 0.1              # 시동 전력
-            self.working_power = 1.0            # 작업 전력
-            self.working_speed = 1.0            # 작업 속도
         
+        # 프로세서의 전력 사용량 및 속도
+        if self.type.upper() == 'P':                # P-코어
+            self.start_power = 0.5                  
+            self.working_power = 3.0                
+            self.working_speed = 2.0                
+        else:                                       # E-코어
+            self.start_power = 0.1
+            self.working_power = 1.0
+            self.working_speed = 1.0
+
+
 
     def is_time_quantum_expired(self, current_time: int) -> bool:
-        """시간 쿼텀 만료 여부 확인 (RR용)"""
-        return self.time_quantum is not None and self.time_quantum <= 0 # 시간 쿼텀이 만료된 경우
-            
-    def time_quantum_decrease(self) -> None:
-        """시간 쿼텀 감소 (RR용)"""
+        """시간 쿼텀 만료 여부 확인 (RR 전용)"""
+        return self.time_quantum is not None and self.time_quantum <= 0
+
+    def decrease_time_quantum(self) -> None:
+        """시간 쿼텀 감소 (RR 전용)"""
         if self.time_quantum is not None:
             self.time_quantum -= 1
-    
-    def time_quantum_reset(self) -> None:
-        """시간 쿼텀 초기화 (RR용)"""
+
+    def reset_time_quantum(self) -> None:
+        """시간 쿼텀 초기화 (RR 전용)"""
         self.time_quantum = self.time_quantum_original
 
 
-
-    def is_available(self) -> bool:
-        """프로세서에 할당된 프로세스가 없을 경우 True 반환"""
+    def is_process_empty(self) -> bool:
+        """할당된 프로세스가 없으면 True 반환"""
         return self.current_process is None
-    
-    def assign_process(self, process,current_time):
-        """프로세서에 프로세스를 할당"""
-        if self.PowerOn == False:                                       # 프로세서가 꺼져있을 경우
-            self.PowerOn = True                                         # 프로세서 켜기
-            self.used_power += self.start_power                         # 시동 전력 사용
-        self.current_process = process                                  # 프로세스 할당
-        self.time_quantum_reset()                                       # 시간 쿼텀 초기화 (RR용)
-        self.current_process.start(current_time)                        # 프로세스 할당
 
-    def execute(self, current_time: int) -> None:
-        """현재 실행 중인 프로세스를 진행"""
-        if self.current_process:
-            self.process_queue.append(self.current_process.pid)         # 프로세스 ID를 큐에 추가 (디버깅용)
-            if self.time_quantum is not None:                           # 시간 쿼텀이 설정된 경우(RR용)
-                self.time_quantum_decrease()                            # 시간 쿼텀 감소(RR용)
-            self.used_power += self.working_power                       # 작업 전력 사용
-            self.current_process.run(self.working_speed)                # 프로세스의 남은 시간 감소
-            if self.current_process.is_completed():                     # 프로세스가 종료된 경우
-                self.current_process.stop(current_time)                             # 프로세스 종료 상태 설정
-                self.current_process = None                             # 현재 프로세서를 None으로 설정하여 사용 가능 상태로 변경 
-        elif current_time != 0: 
-            self.process_queue.append(0)                                # 현재 프로세스가 없을 경우 '0' 추가 (디버깅용)
-    
-    
-    def drop_process(self):
-        """현재 프로세스를 내려놓고 대기상태로"""
+    def assign_process(self, process: Process, current_time: int) -> None:
+        """
+        프로세스를 현재 프로세서에 할당하고 실행 시작
+        - 전원이 꺼져 있으면 시동 전력 추가
+        - 시간 쿼텀 초기화(RR 전용)
+        - 프로세스 상태 변경 
+        """
+
+        if not self.PowerOn:
+            self.PowerOn = True
+            self.used_power += self.start_power
+        self.current_process = process
+        self.reset_time_quantum()
+        self.current_process.start(current_time)
+
+    def preempt_process(self) -> Process:
+        """
+        현재 실행 중인 프로세스를 대기 상태로 전환
+        - 현재 프로세스를 반환하고, 프로세서에서 제거
+        """
+        
         if self.current_process:
             process = self.current_process
-            self.current_process.wait() # 프로세스의 대기 상태 설정
+            process.wait()
             self.current_process = None
+            return process
+        return None
 
-        return process
-            
 
-        
-            
-    
+    def execute(self, current_time: int) -> None:
+        """
+        프로세서를 한 사이클 실행한다.
+        - 프로세스가 할당되어 있다면 실행 및 전력 증가
+        - 시간 쿼텀 감소(RR 전용)
+        - 소비 전력량 증가
+        - 프로세스가 완료되면 종료 처리
+        """
+
+        if self.current_process:
+            self.process_queue.append(self.current_process.pid) # 디버깅용 로그
+
+            if self.time_quantum is not None:
+                self.decrease_time_quantum()
+
+            self.used_power += self.working_power
+            self.current_process.run(self.working_speed)
+
+            if self.current_process.is_completed():
+                self.current_process.stop(current_time)
+                self.current_process = None
+
+        elif current_time != 0:
+            self.process_queue.append(0) # 디버깅용 로그

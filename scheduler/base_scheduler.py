@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from core.process import Process
-from typing import List, Any
+from typing import List
 from core.processor import Processor
 from collections import deque
 import heapq
@@ -16,14 +16,12 @@ class BaseScheduler(ABC):
         self.current_power = 0                      # 현재 프로세서의 전력 사용량
 
     def simulate(self) -> None:
-        """
-        시뮬레이션을 실행하는 메서드
-        """
-        while self.hasNext():
-            self.ready_queue_update()           # 대기 큐 업데이트
+        """스케줄링 시뮬레이션 실행"""
+        while self.has_next():
+            self.update_ready_queue()           # 대기 큐 업데이트
             self.schedule()                     # 스케줄링 알고리즘 실행
             self.assign_process()               # 프로세서에 프로세스 할당
-            self.processor_power_off()           # 프로세서 전원 끄기
+            self.power_off_idle_processors()          # 프로세서 전원 끄기
             self.process_waiting_time_update()  # 대기 중인 프로세스의 대기 시간 업데이트
             self.log_state()                    # 현재 상태 출력 (디버깅용)
             self.update_current_time()          # 현재 시간 업데이트
@@ -33,24 +31,18 @@ class BaseScheduler(ABC):
     @abstractmethod
     def assign_process(self) -> None:
         """
-        프로세서에 레디큐의 프로세스를 할당하는 메서드(구현해야함)
-        
+        프로세서에 레디큐의 프로세스를 할당하는 메서드(각 스케쥴러마다 구현해야함)
         """
         pass
     
     
     def schedule(self)-> None:
-        """
-        프로세서들을 일시키는 메서드(프로세스 할당여부는 execute에서 확인함)
-        """
+        """프로세서 실행"""
         for processor in self.processors_info:
             processor.execute(self.current_time)
     
-    def ready_queue_update(self) -> None:
-        """
-        대기 큐를 업데이트하는 메서드
-        충돌시 PID가 큰게 우선으로 할당됩니다.
-        """
+    def update_ready_queue(self) -> None:
+        """도착한 프로세스를 대기 큐에 추가 (PID 우선순위: 큰 값 우선)"""
         process_priority_queue = []
         for process in self.processes:
             # 프로세스가 도착했지만 대기 큐에 없고 실행 중이지 않으며 남은 시간이 있는 경우
@@ -71,14 +63,14 @@ class BaseScheduler(ABC):
                 process.wait_time+=1
 
     
-    def hasNext(self)-> bool:
+    def has_next(self)-> bool:
         """
         시뮬레이션이 계속 진행될 수 있는지 확인하는 메서드
         """
         return any(process.turnaround_time is None for process in self.processes)
     
     
-    def get_current_power(self) -> float:
+    def calculate_total_power(self) -> float:
         """
         전체 프로세서의 전력 사용량 합 계산하는 메서드
         """
@@ -87,26 +79,35 @@ class BaseScheduler(ABC):
             power += processor.used_power
         return power
     
-    def processor_power_off(self):
+    def power_off_idle_processors(self) -> None:
         """
         프로세서의 전원을 끄는 메서드
         (할당된 프로세스가 없고 대기 중인 프로세스가 없고 전원이 켜져 있는 경우)
         """
         for processor in self.processors_info:
-            if processor.is_available() and processor.PowerOn:
+            if processor.is_process_empty() and processor.PowerOn:
                 processor.PowerOn = False
     
     def update_current_time(self) -> None:
         self.current_time += 1
         
-    def get_process(self):
+    def get_process(self) -> List[Process]:
         return self.processes
     
-    def get_processors(self):
+    def get_processors(self) -> List[Processor]:
         return self.processors_info
 
-    # 디버깅용 출력 메서드들
 
+
+
+
+
+
+
+
+
+
+    # 디버깅용 출력 메서드들
     def log_state(self) -> None:
         """
         현재 시간과 프로세스 상태를 출력 (디버깅용)
@@ -116,19 +117,19 @@ class BaseScheduler(ABC):
         
         print("-----------")
         print(f"현재 시간: {self.current_time}")
-        print(f"현재 전력 사용량: {self.get_current_power()}")
+        print(f"현재 전력 사용량: {self.calculate_total_power()}")
         print(f"현재 대기 큐:", end="")
         for process in self.ready_queue:
             print(f" {process.pid}", end="")
         print()
         print("실행 중인 프로세스")
-        for processer in self.processors_info:
-            if(processer.PowerOn == False): print(f"[꺼짐]", end="")
+        for processor in self.processors_info:
+            if(processor.PowerOn == False): print(f"[꺼짐]", end="")
             else: print(f"[켜짐]", end="")
-            print(f"프로세서 {processer.id} |", end="")
-            if(processer.time_quantum is not None): print(f"시간 쿼텀: {processer.time_quantum}", end="")
-            if(processer.current_process):
-                processer.current_process.log_state()
+            print(f"프로세서 {processor.id} |", end="")
+            if(processor.time_quantum is not None): print(f"시간 쿼텀: {processor.time_quantum}", end="")
+            if(processor.current_process):
+                processor.current_process.log_state()
             else:
                 print("없음")
             
