@@ -15,12 +15,6 @@ CustomAlgorithm => RR + FinishDelay(RemainingTime이 1초 남았을 때 대기�
 from scheduler import BaseScheduler
 
 class CustomScheduler(BaseScheduler):
-    # CustomScheduler는 기본적으로 RR(qt=1)기반으로 작동함.
-    def schedule(self):
-        for processor in self.processors_info:
-            if not processor.is_process_empty():
-                processor.execute(self.current_time)
-
     def assign_process(self):
         def avg_RT(): # readyQueue의 평균 RT값
             return sum([i.remaining_time for i in self.ready_queue]) / (len(self.ready_queue)) if self.ready_queue else 0
