@@ -1,6 +1,4 @@
 # Process Scheduling Simulator
-- 마감일: 5/9(금) 23:59
-- 시연,발표: 5/12, {5/13, 5/14}(세부 일정은 추후 공지)
 - 언어: Python
 
 
@@ -9,21 +7,6 @@
 - 조윤재
 - 김도헌
 - 한윤수
-
-
-## 진척도
-
-- scheduling  (충돌시 PID를 기준으로 높은 PID를 먼저 처리하게 구현해주세요)
-    - ✅base scheduling(추상)
-    - ✅FCFS
-    - ✅RR
-    - ✅SPN
-    - ✅SRTN
-    - ✅HRRN
-    - ✅Custom-algorithm 
-- ✅시각화
-
-
 
 
 ## 책임 분담

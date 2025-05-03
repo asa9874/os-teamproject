@@ -1,8 +1,6 @@
 from scheduler import BaseScheduler
 from collections import deque
-"""
 
-"""
 class SRTNScheduler(BaseScheduler):
     def assign_process(self):
         """
