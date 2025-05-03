@@ -18,7 +18,7 @@ class CustomScheduler(BaseScheduler):
     # CustomScheduler는 기본적으로 RR(qt=1)기반으로 작동함.
     def schedule(self):
         for processor in self.processors_info:
-            if not processor.is_available():
+            if not processor.is_process_empty():
                 processor.execute(self.current_time)
 
     def assign_process(self):
@@ -27,13 +27,13 @@ class CustomScheduler(BaseScheduler):
 
         for processor in self.processors_info:
             # 프로세서 사용 불가 경우
-            if not processor.is_available():
+            if not processor.is_process_empty():
                 if processor.is_time_quantum_expired(self.current_time):
                     self.ready_queue.appendleft(processor.current_process)  # 대기 큐의 맨 앞에 추가
-                    processor.drop_process()  # 프로세서를 비움
+                    processor.preempt_process()  # 프로세서를 비움
             
             # 프로세서 사용 가능 경우
-            if processor.is_available():
+            if processor.is_process_empty():
                 if self.ready_queue: # 대기 큐에 프로세스가 존재하는 경우
                     if avg_RT() > 1: # readyQueue에 RT값이 1이상인 프로세스가 존재하는 경우
                         while self.ready_queue[-1].remaining_time <= 1: # ready_queue[-1]의 RT값이 1이상이 나올때 까지 appendleft

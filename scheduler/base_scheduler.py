@@ -93,7 +93,7 @@ class BaseScheduler(ABC):
         (할당된 프로세스가 없고 대기 중인 프로세스가 없고 전원이 켜져 있는 경우)
         """
         for processor in self.processors_info:
-            if processor.is_available() and processor.PowerOn:
+            if processor.is_process_empty() and processor.PowerOn:
                 processor.PowerOn = False
     
     def update_current_time(self) -> None:
