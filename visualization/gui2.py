@@ -13,6 +13,7 @@ from core.process import Process
 from core.processor import Processor
 from simulator import SchedulerApp, SchedulerType
 from scheduler.base_scheduler import BaseScheduler
+from visualization.widgetbuilder import WidgetBuilder
 
 # 상수 정의
 MAX_PROCESSES = 15
@@ -44,207 +45,13 @@ class SchedulerGUI2(ctk.CTk):
         self.gantt_header_height = 25
         self.gantt_row_height = 30
         self.gantt_time_scale = 25
-
-        # 제어 프레임 (상단)
-        self.control_frame = ctk.CTkFrame(self, fg_color="transparent", corner_radius=0)
-        self.control_frame.pack(side="top", fill="x", padx=5, pady=5)
-
-        # 좌우 분할용 (customtkinter에는 PanedWindow가 없으므로 ttk.PanedWindow 사용)
-        self.main_pane = ttk.PanedWindow(self, orient="horizontal")
-        self.main_pane.pack(fill="both", expand=True)
-
-        # 입력 프레임 (좌측) 1/4
-        self.input_frame = ctk.CTkFrame(self.main_pane, corner_radius=8)
-        self.main_pane.add(self.input_frame, weight=0)
-
-        # 출력 프레임 (우측) 3/4
-        self.output_container_frame = ctk.CTkFrame(self.main_pane, corner_radius=8)
-        self.main_pane.add(self.output_container_frame, weight=3)
-
-        # 위젯 생성
-        self.setup_control_widgets()
-        self.setup_input_widgets()
-        self.setup_output_widgets()
+        
+        # 위젯,틀 생성
+        self.widget_builder = WidgetBuilder(self)
+        self.widget_builder.setup()
 
         # 프로세스, 프로세서 목록 라벨 초기화
         self.update_list_counts()
-
-    # 제어 위젯
-    def setup_control_widgets(self):
-        # 알고리즘 선택
-        ctk.CTkLabel(self.control_frame, text="Algorithm:").pack(side="left", padx=(0,2))
-        scheduler_names = [s.name for s in SchedulerType]
-        self.scheduler_var = ctk.StringVar(value=scheduler_names[0])
-        self.scheduler_combo = ctk.CTkComboBox(
-            self.control_frame,
-            values=scheduler_names,
-            variable=self.scheduler_var,
-            width=100,
-            command=self.update_rr_quantum_visibility
-        )
-        self.scheduler_combo.pack(side="left", padx=(0,10))
-
-        # RR용 타임 퀀텀
-        self.rr_quantum_label = ctk.CTkLabel(self.control_frame, text="Time Quantum:")
-        self.rr_quantum_entry = ctk.CTkEntry(self.control_frame, width=50)
-
-        # 시뮬레이션 제어용 버튼들
-        self.start_button = ctk.CTkButton(self.control_frame, text="Start", command=self.start_simulation, width=70)
-        self.start_button.pack(side="left", padx=(10,2))
-        self.pause_resume_button = ctk.CTkButton(self.control_frame, text="Pause", command=self.toggle_pause_simulation, width=70, state="disabled")
-        self.pause_resume_button.pack(side="left", padx=2)
-        self.step_button = ctk.CTkButton(self.control_frame, text="Step", command=self.step_simulation, width=50, state="disabled")
-        self.step_button.pack(side="left", padx=2)
-        self.reset_button = ctk.CTkButton(self.control_frame, text="Reset", command=self.reset_all, width=60)
-        self.reset_button.pack(side="left", padx=(10,2))
-
-        # 속도 조절
-        self.speed_label_var = ctk.StringVar(value=f"{self.simulation_speed_ms} ms")
-        ctk.CTkLabel(self.control_frame, textvariable=self.speed_label_var, width=70).pack(side="right", padx=(0,5))
-        self.speed_scale = ctk.CTkSlider(self.control_frame, from_=50, to=500, command=self.update_speed, width=120)
-        self.speed_scale.set(self.simulation_speed_ms)
-        self.speed_scale.pack(side="right", padx=2)
-        ctk.CTkLabel(self.control_frame, text="Speed:").pack(side="right", padx=0)
-
-        # RR이면 퀀텀 위젯 표시
-        self.update_rr_quantum_visibility()
-
-    # 입력 위젯
-    def setup_input_widgets(self):
-        input_content_frame = ctk.CTkFrame(self.input_frame)
-        input_content_frame.pack(fill="both", expand=True)
-
-        # 프로세스 입력
-        process_section_frame = ctk.CTkFrame(input_content_frame)
-        process_section_frame.pack(side="top", fill="x", pady=(0,10))
-
-        # 'Add Process' 제목 레이블과 프레임
-        process_input_header = ctk.CTkLabel(process_section_frame, text="Add Process", font=("Arial", 12, "bold"))
-        process_input_header.pack(pady=(5,0), anchor="w", padx=5)
-        process_input_frame = ctk.CTkFrame(process_section_frame, corner_radius=8)
-        process_input_frame.pack(pady=5, fill="x", padx=5)
-
-        ctk.CTkLabel(process_input_frame, text="Arrival:").grid(row=0, column=0, padx=5, pady=(5,2), sticky="w")
-        self.arrival_entry = ctk.CTkEntry(process_input_frame, width=50)
-        self.arrival_entry.grid(row=0, column=1, padx=5, pady=(5,2), sticky="ew")
-        ctk.CTkLabel(process_input_frame, text="Burst:").grid(row=1, column=0, padx=5, pady=(2,5), sticky="w")
-        self.burst_entry = ctk.CTkEntry(process_input_frame, width=50)
-        self.burst_entry.grid(row=1, column=1, padx=5, pady=(2,5), sticky="ew")
-        self.add_process_button = ctk.CTkButton(process_input_frame, text="Add", command=self.add_process, width=60)
-        self.add_process_button.grid(row=0, column=2, rowspan=2, padx=10, pady=5, sticky="ns")
-        process_input_frame.grid_columnconfigure(1, weight=1)
-
-        # 프로세스 목록 (ttk.Treeview 사용)
-        process_list_header = ctk.CTkLabel(process_section_frame, text="Processes", font=("Arial", 12, "bold"))
-        process_list_header.pack(pady=(5,0), anchor="w", padx=5)
-        self.process_list_labelframe = ctk.CTkFrame(process_section_frame)
-        self.process_list_labelframe.pack(pady=5, fill="x", padx=5)
-        self.process_tree = ttk.Treeview(self.process_list_labelframe, columns=("pid", "arrival", "burst"), show="headings", height=6)
-        self.process_tree.heading("pid", text="PID")
-        self.process_tree.column("pid", width=40, minwidth=30, anchor="center")
-        self.process_tree.heading("arrival", text="Arrival")
-        self.process_tree.column("arrival", width=50, minwidth=40, anchor="center")
-        self.process_tree.heading("burst", text="Burst")
-        self.process_tree.column("burst", width=50, minwidth=40, anchor="center")
-        process_scrollbar = ttk.Scrollbar(self.process_list_labelframe, orient="vertical", command=self.process_tree.yview)
-        self.process_tree.configure(yscrollcommand=process_scrollbar.set)
-        process_scrollbar.pack(side="right", fill="y")
-        self.process_tree.pack(side="left", fill="x", expand=True)
-        self.remove_process_button = ctk.CTkButton(process_section_frame, text="Remove Selected Process", command=self.remove_process)
-        self.remove_process_button.pack(pady=(0,5), padx=5)
-
-        # 프로세서 입력
-        processor_section_frame = ctk.CTkFrame(input_content_frame)
-        processor_section_frame.pack(side="top", fill="x", padx=5)
-        processor_input_header = ctk.CTkLabel(processor_section_frame, text="Add Processor", font=("Arial", 12, "bold"))
-        processor_input_header.pack(pady=(5,0), anchor="w")
-        processor_input_frame = ctk.CTkFrame(processor_section_frame, corner_radius=8, width=400, height=80)
-        processor_input_frame.pack(pady=5, fill="x")
-        processor_input_frame.pack_propagate(False)  # 지정한 width, height 유지
-
-        ctk.CTkLabel(processor_input_frame, text="Type:").grid(row=0, column=0, padx=5, pady=(10,2), sticky="w")
-        self.proc_type_var = ctk.StringVar(value="P")
-        proc_type_p = ctk.CTkRadioButton(processor_input_frame, text="P-Core", variable=self.proc_type_var, value="P")
-        proc_type_e = ctk.CTkRadioButton(processor_input_frame, text="E-Core", variable=self.proc_type_var, value="E")
-        proc_type_p.grid(row=0, column=1, padx=5, pady=(10,2), sticky="w")
-        proc_type_e.grid(row=1, column=1, padx=5, pady=(2,10), sticky="w")
-        self.add_processor_button = ctk.CTkButton(processor_input_frame, text="Add", command=self.add_processor, width=60)
-        self.add_processor_button.grid(row=0, column=2, rowspan=2, padx=10, pady=5, sticky="ns")
-        processor_input_frame.grid_columnconfigure(1, weight=1)
-
-        processor_list_header = ctk.CTkLabel(processor_section_frame, text="Processors", font=("Arial", 12, "bold"))
-        processor_list_header.pack(pady=(5,0), anchor="w")
-        self.processor_list_labelframe = ctk.CTkFrame(processor_section_frame)
-        self.processor_list_labelframe.pack(pady=5, fill="x")
-        self.processor_tree = ttk.Treeview(self.processor_list_labelframe, columns=("id", "type"), show="headings", height=4)
-        self.processor_tree.heading("id", text="ID")
-        self.processor_tree.column("id", width=50, minwidth=40, anchor="center")
-        self.processor_tree.heading("type", text="Type")
-        self.processor_tree.column("type", width=70, minwidth=50, anchor="center")
-        processor_scrollbar = ttk.Scrollbar(self.processor_list_labelframe, orient="vertical", command=self.processor_tree.yview)
-        self.processor_tree.configure(yscrollcommand=processor_scrollbar.set)
-        processor_scrollbar.pack(side="right", fill="y")
-        self.processor_tree.pack(side="left", fill="x", expand=True)
-        self.remove_processor_button = ctk.CTkButton(processor_section_frame, text="Remove Selected Processor", command=self.remove_processor)
-        self.remove_processor_button.pack(pady=(0,5))
-
-    # 출력 위젯
-    def setup_output_widgets(self):
-        # 간트 차트 영역
-        gantt_header = ctk.CTkLabel(self.output_container_frame, text="Gantt Chart", font=("Arial", 12, "bold"))
-        gantt_header.pack(pady=(5,0), anchor="w", padx=5)
-        gantt_frame = ctk.CTkFrame(self.output_container_frame)  # padx, pady 제거
-        gantt_frame.pack(side="top", fill="x", padx=5, pady=5)  # pack()에서 패딩 지정
-        self.gantt_canvas = ctk.CTkCanvas(gantt_frame, bg="white", height=100, highlightthickness=0)
-        gantt_hbar = ttk.Scrollbar(gantt_frame, orient="horizontal", command=self.gantt_canvas.xview)
-        gantt_hbar.pack(side="bottom", fill="x")
-        self.gantt_canvas.configure(xscrollcommand=gantt_hbar.set)
-        self.gantt_canvas.pack(fill="x", expand=True)
-        self.draw_initial_gantt_layout()
-
-        # 결과 테이블 영역
-        results_header = ctk.CTkLabel(self.output_container_frame, text="Results Table", font=("Arial", 12, "bold"))
-        results_header.pack(pady=(5,0), anchor="w", padx=5)
-        results_frame = ctk.CTkFrame(self.output_container_frame)  # padx, pady 제거
-        results_frame.pack(side="top", fill="both", expand=True, padx=5, pady=(0,5))  # pack()에서 패딩 지정
-        columns = ("pid", "arrival", "burst", "remain", "start", "wait", "turnaround", "ntt")
-        self.results_tree = ttk.Treeview(
-            results_frame,
-            columns=columns,
-            show="headings",
-            height=5
-        )
-        self.results_tree.heading("pid", text="PID")
-        self.results_tree.heading("arrival", text="arrival")
-        self.results_tree.heading("burst", text="burst")
-        self.results_tree.heading("remain", text="remain")
-        self.results_tree.heading("start", text="start")
-        self.results_tree.heading("wait", text="wait")
-        self.results_tree.heading("turnaround", text="turnaround")
-        self.results_tree.heading("ntt", text="NTT")
-        for col in columns:
-            self.results_tree.column(col, width=120, stretch=False)
-            self.results_tree.heading(col, text=col.capitalize())
-        
-        # ... (Treeview 설정 코드)
-        results_scrollbar = ttk.Scrollbar(results_frame, orient="vertical", command=self.results_tree.yview)
-        self.results_tree.configure(yscrollcommand=results_scrollbar.set)
-        results_scrollbar.pack(side="right", fill="y")
-        self.results_tree.pack(side="left", fill="both", expand=True)
-        self.results_tree_items = {}
-
-        # 요약 정보 영역
-        summary_frame = ctk.CTkFrame(self.output_container_frame)  # padx, pady 제거
-        summary_frame.pack(side="bottom", fill="x", padx=5, pady=2)  # pack()에서 패딩 지정
-        self.summary_label_vars = {}
-        ctk.CTkLabel(summary_frame, text="Elapsed Time:", font=("Arial", 10, "bold")).pack(side="left", padx=(5,2))
-        time_var = ctk.StringVar(value="0")
-        self.summary_label_vars["Current Time"] = time_var
-        ctk.CTkLabel(summary_frame, textvariable=time_var, font=("Arial", 10), width=50).pack(side="left", padx=(0,10))
-        ctk.CTkLabel(summary_frame, text="Total Power Used:", font=("Arial", 10, "bold")).pack(side="left", padx=(5,2))
-        power_var = ctk.StringVar(value="N/A")
-        self.summary_label_vars["Total Power Used"] = power_var
-        ctk.CTkLabel(summary_frame, textvariable=power_var, font=("Arial", 10)).pack(side="left", padx=(0,5))
 
     def get_unique_pid(self):
         existing_pids = {int(self.process_tree.item(item, 'values')[0]) for item in self.process_tree.get_children()}
