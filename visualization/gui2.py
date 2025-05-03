@@ -15,6 +15,7 @@ from simulator import SchedulerApp, SchedulerType
 from scheduler.base_scheduler import BaseScheduler
 from visualization.widgetbuilder import WidgetBuilder
 from visualization.inputmanager import InputManager
+from visualization.gantt import GanttManager
 
 # 상수 정의
 MAX_PROCESSES = 15
@@ -52,6 +53,9 @@ class SchedulerGUI2(ctk.CTk):
         
         # 입력관련
         self.input = InputManager(self)
+        
+        # 간트관련
+        self.gantt = GanttManager(self)
         
         # 위젯,틀 생성
         self.widget_builder.setup()
@@ -97,7 +101,7 @@ class SchedulerGUI2(ctk.CTk):
             self.processor_data = [p for p in self.processor_data if p['id'] not in ids_to_remove]
             for item in selected_items:
                 self.processor_tree.delete(item)
-            self.draw_initial_gantt_layout()
+            self.gantt.draw_initial_gantt_layout()
             self.update_list_counts()
 
     def update_rr_quantum_visibility(self, event=None):
@@ -156,7 +160,7 @@ class SchedulerGUI2(ctk.CTk):
 
     def clear_outputs(self):
         self.gantt_canvas.delete("all")
-        self.draw_initial_gantt_layout()
+        self.gantt.draw_initial_gantt_layout()
         self.results_tree.delete(*self.results_tree.get_children())
         self.results_tree_items.clear()
         self.summary_label_vars["Total Power Used"].set("N/A")
@@ -238,7 +242,7 @@ class SchedulerGUI2(ctk.CTk):
         try:
             self.app.select_scheduler()
             self.prepare_results_table(self.app.scheduler.processes)
-            self.draw_initial_gantt_layout()
+            self.gantt.draw_initial_gantt_layout()
         except Exception as e:
             messagebox.showerror("초기화 오류", f"스케줄러 초기화 실패: {e}")
             self.reset_all()
@@ -288,7 +292,7 @@ class SchedulerGUI2(ctk.CTk):
             current_processes = scheduler.get_process()
             current_processors = scheduler.get_processors()
             current_power = scheduler.calculate_total_power()
-            self.update_gantt_chart_live(current_processors, current_time)
+            self.gantt.update_gantt_chart_live(current_processors, current_time)
             self.update_results_table_live(current_processes)
             self.update_summary_live(current_time, current_power)
             scheduler.update_current_time()
@@ -331,36 +335,6 @@ class SchedulerGUI2(ctk.CTk):
         ftime_display = final_time if final_time != "N/A" else 0
         messagebox.showinfo("시뮬레이션 완료", f"시뮬레이션이 시간 {ftime_display}에 종료되었습니다.")
 
-    def draw_initial_gantt_layout(self):
-        self.gantt_canvas.delete("all")
-        self.process_colors.clear()
-        num_processors = len(self.processor_data)
-        canvas_height = self.gantt_header_height + (num_processors * (self.gantt_row_height + self.gantt_padding)) + self.gantt_padding
-        if num_processors == 0:
-            canvas_height = self.gantt_header_height + 30
-        self.gantt_canvas.config(height=canvas_height)
-        initial_drawing_width = 800
-        scroll_width = self.gantt_label_width + initial_drawing_width + self.gantt_padding
-        self.gantt_canvas.configure(scrollregion=(0, 0, scroll_width, canvas_height))
-        drawing_width_available = initial_drawing_width
-        max_initial_time = int(drawing_width_available / self.gantt_time_scale)
-        max_initial_time = max(0, max_initial_time)
-        time_axis_y = self.gantt_padding + self.gantt_header_height / 2
-        grid_line_top = self.gantt_padding
-        grid_line_bottom = canvas_height - self.gantt_padding
-        for t in range(max_initial_time + 1):
-            x = self.gantt_label_width + (t * self.gantt_time_scale)
-            self.gantt_canvas.create_line(x, grid_line_top, x, grid_line_bottom, fill="lightgrey", dash=(2,2), tags="time_grid")
-            if t % 5 == 0 or max_initial_time <= 20:
-                self.gantt_canvas.create_text(x, time_axis_y, text=str(t), anchor="center", tags="time_label")
-        label_x_pos = self.gantt_label_width - 5
-        for i, processor_info in enumerate(self.processor_data):
-            y_top = self.gantt_padding + self.gantt_header_height + i * (self.gantt_row_height + self.gantt_padding)
-            label_y_center = y_top + self.gantt_row_height / 2
-            self.gantt_canvas.create_text(label_x_pos, label_y_center - 6, text=f"CPU {processor_info['id']}", anchor="e", tags="proc_label", font=('Arial', 9))
-            self.gantt_canvas.create_text(label_x_pos, label_y_center + 6, text=f"({processor_info['type']}-Core)", anchor="e", tags="proc_label", font=('Arial', 8))
-
-    def update_gantt_chart_live(self, processors: list, current_time: int):
         if current_time == 0:
             return
         time_step = current_time - 1
