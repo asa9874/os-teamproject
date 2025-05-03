@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter.ttk as ttk
 from simulator import SchedulerType
 from tkinter import messagebox
+#from visualization.gui2 import SchedulerGUI2
 
 MAX_PROCESSES = 15
 MAX_PROCESSORS = 4
@@ -61,7 +62,7 @@ class InputManager:
             raise ValueError("프로세서 타입은 'P' 또는 'E' 여야 합니다.")
         app.processor_tree.insert("", "end", values=(proc_id, proc_type))
         app.processor_data.append({'id': proc_id, 'type': proc_type, 'quantum': None})
-        app.draw_initial_gantt_layout()
+        app.gantt.draw_initial_gantt_layout()
         app.update_list_counts()
 
     def remove_processor(self):
@@ -77,7 +78,7 @@ class InputManager:
             app.processor_data = [p for p in app.processor_data if p['id'] not in ids_to_remove]
             for item in selected_items:
                 app.processor_tree.delete(item)
-            app.draw_initial_gantt_layout()
+            app.gantt.draw_initial_gantt_layout()
             app.update_list_counts()
 
     def get_unique_pid(self):

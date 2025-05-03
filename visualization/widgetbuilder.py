@@ -5,7 +5,7 @@ from simulator import SchedulerType
 #from visualization.gui2 import SchedulerGUI2
 
 class WidgetBuilder:
-    def __init__(self, app):
+    def __init__(self, app ):
         self.app = app  # 부모 클래스 인스턴스를 전달받음
         
         app.control_frame = ctk.CTkFrame(app, fg_color="transparent", corner_radius=0)
@@ -50,13 +50,13 @@ class WidgetBuilder:
         app.rr_quantum_entry = ctk.CTkEntry(app.control_frame, width=50)
 
         # 시뮬레이션 제어 버튼들
-        app.start_button = ctk.CTkButton(app.control_frame, text="Start", command=app.start_simulation, width=70)
+        app.start_button = ctk.CTkButton(app.control_frame, text="Start", command=app.simulation.start_simulation, width=70)
         app.start_button.pack(side="left", padx=(10,2))
 
-        app.pause_resume_button = ctk.CTkButton(app.control_frame, text="Pause", command=app.toggle_pause_simulation, width=70, state="disabled")
+        app.pause_resume_button = ctk.CTkButton(app.control_frame, text="Pause", command=app.simulation.toggle_pause_simulation, width=70, state="disabled")
         app.pause_resume_button.pack(side="left", padx=2)
 
-        app.step_button = ctk.CTkButton(app.control_frame, text="Step", command=app.step_simulation, width=50, state="disabled")
+        app.step_button = ctk.CTkButton(app.control_frame, text="Step", command=app.simulation.step_simulation, width=50, state="disabled")
         app.step_button.pack(side="left", padx=2)
 
         app.reset_button = ctk.CTkButton(app.control_frame, text="Reset", command=app.reset_all, width=60)
@@ -166,7 +166,7 @@ class WidgetBuilder:
         gantt_hbar.pack(side="bottom", fill="x")
         app.gantt_canvas.configure(xscrollcommand=gantt_hbar.set)
         app.gantt_canvas.pack(fill="x", expand=True)
-        app.draw_initial_gantt_layout()
+        app.gantt.draw_initial_gantt_layout()
 
         # 결과 테이블 영역
         results_header = ctk.CTkLabel(app.output_container_frame, text="Results Table", font=("Arial", 12, "bold"))

@@ -15,7 +15,8 @@ from simulator import SchedulerApp, SchedulerType
 from scheduler.base_scheduler import BaseScheduler
 from visualization.widgetbuilder import WidgetBuilder
 from visualization.inputmanager import InputManager
-from visualization.gantt import GanttManager
+from visualization.ganttmanager import GanttManager
+from visualization.simuationmanager import SimulationManager
 
 # 상수 정의
 MAX_PROCESSES = 15
@@ -56,6 +57,9 @@ class SchedulerGUI2(ctk.CTk):
         
         # 간트관련
         self.gantt = GanttManager(self)
+        
+        # 시뮬레이션 관련
+        self.simulation = SimulationManager(self)
         
         # 위젯,틀 생성
         self.widget_builder.setup()
@@ -129,7 +133,7 @@ class SchedulerGUI2(ctk.CTk):
         if speed_changed and self.simulation_running and not self.simulation_paused:
             if self.current_after_id:
                 self.after_cancel(self.current_after_id)
-            self.current_after_id = self.after(self.simulation_speed_ms, self.simulation_step)
+            self.current_after_id = self.after(self.simulation_speed_ms, self.simulation.simulation_step)
 
     def reset_all(self):
         if self.current_after_id:
@@ -253,154 +257,7 @@ class SchedulerGUI2(ctk.CTk):
         self.start_button.configure(state="disabled")
         self.pause_resume_button.configure(text="Pause", state="normal")
         self.step_button.configure(state="normal")
-        self.simulation_step()
-
-    def toggle_pause_simulation(self):
-        if not self.simulation_running:
-            return
-        self.simulation_paused = not self.simulation_paused
-        if self.simulation_paused:
-            self.pause_resume_button.configure(text="Resume")
-            if self.current_after_id:
-                self.after_cancel(self.current_after_id)
-                self.current_after_id = None
-        else:
-            self.pause_resume_button.configure(text="Pause")
-            self.step_button.configure(state="normal")
-            self.current_after_id = self.after(self.simulation_speed_ms, self.simulation_step)
-
-    def step_simulation(self):
-        if not self.simulation_running:
-            return
-        if not self.simulation_paused:
-            self.simulation_paused = True
-            self.pause_resume_button.configure(text="Resume")
-            if self.current_after_id:
-                self.after_cancel(self.current_after_id)
-            self.current_after_id = None
-        self._execute_one_step()
-
-    def _execute_one_step(self):
-        scheduler = self.app.scheduler
-        if scheduler.has_next():
-            current_time = scheduler.current_time
-            scheduler.update_ready_queue()
-            scheduler.schedule()
-            scheduler.assign_process()
-            scheduler.power_off_idle_processors()
-            scheduler.process_waiting_time_update()
-            current_processes = scheduler.get_process()
-            current_processors = scheduler.get_processors()
-            current_power = scheduler.calculate_total_power()
-            self.gantt.update_gantt_chart_live(current_processors, current_time)
-            self.update_results_table_live(current_processes)
-            self.update_summary_live(current_time, current_power)
-            scheduler.update_current_time()
-            return True
-        else:
-            self.simulation_finished()
-            return False
-
-    def simulation_step(self):
-        if not self.simulation_running or self.simulation_paused:
-            self.current_after_id = None
-            return
-        executed = self._execute_one_step()
-        if executed and self.simulation_running and not self.simulation_paused:
-            self.current_after_id = self.after(self.simulation_speed_ms, self.simulation_step)
-        else:
-            self.current_after_id = None
-
-    def simulation_finished(self):
-        self.simulation_running = False
-        self.simulation_paused = False
-        final_time = "N/A"
-        total_power = 0.0
-        if self.app and self.app.scheduler:
-            final_processes = self.app.scheduler.get_process()
-            final_processors = self.app.scheduler.get_processors()
-            final_time = self.app.scheduler.current_time
-            total_power = self.app.scheduler.calculate_total_power()
-            self.update_results_table_live(final_processes)
-            self.calculate_and_display_summary(total_power, final_time)
-        else:
-            self.calculate_and_display_summary(0.0, 0)
-        self.start_button.configure(text="Start", state="normal")
-        self.pause_resume_button.configure(text="Pause", state="disabled")
-        self.step_button.configure(state="disabled")
-        self.enable_inputs()
-        if self.current_after_id:
-            self.after_cancel(self.current_after_id)
-            self.current_after_id = None
-        ftime_display = final_time if final_time != "N/A" else 0
-        messagebox.showinfo("시뮬레이션 완료", f"시뮬레이션이 시간 {ftime_display}에 종료되었습니다.")
-
-        if current_time == 0:
-            return
-        time_step = current_time - 1
-        num_processors = len(self.processor_data)
-        required_canvas_height = self.gantt_header_height + (num_processors * (self.gantt_row_height + self.gantt_padding)) + self.gantt_padding
-        if num_processors == 0:
-            required_canvas_height = self.gantt_header_height + 30
-        if abs(self.gantt_canvas.winfo_reqheight() - required_canvas_height) > 1:
-            self.gantt_canvas.config(height=required_canvas_height)
-        required_total_width = self.gantt_label_width + (current_time * self.gantt_time_scale) + self.gantt_padding
-        current_scroll_region = self.gantt_canvas.cget("scrollregion")
-        if current_scroll_region:
-            try:
-                _, _, current_scroll_width, current_scroll_height = map(int, current_scroll_region.split())
-            except ValueError:
-                current_scroll_width = self.gantt_label_width + 800
-                current_scroll_height = required_canvas_height
-        else:
-            current_scroll_width = self.gantt_label_width + 800
-            current_scroll_height = required_canvas_height
-        current_canvas_height = required_canvas_height
-        width_changed = False
-        if required_total_width > current_scroll_width:
-            new_scroll_width = required_total_width + 200
-            self.gantt_canvas.configure(scrollregion=(0, 0, new_scroll_width, current_canvas_height))
-            start_t = int((current_scroll_width - self.gantt_label_width) / self.gantt_time_scale)
-            end_t = int((new_scroll_width - self.gantt_label_width) / self.gantt_time_scale) + 1
-            time_axis_y = self.gantt_padding + self.gantt_header_height / 2
-            grid_line_top = self.gantt_padding
-            grid_line_bottom = current_canvas_height - self.gantt_padding
-            for t in range(start_t, end_t):
-                x = self.gantt_label_width + (t * self.gantt_time_scale)
-                self.gantt_canvas.create_line(x, grid_line_top, x, grid_line_bottom, fill="lightgrey", dash=(2,2), tags="time_grid")
-                if t % 5 == 0:
-                    self.gantt_canvas.create_text(x, time_axis_y, text=str(t), anchor="center", tags="time_label")
-            current_scroll_width = new_scroll_width
-            width_changed = True
-        height_changed = False
-        if abs(current_scroll_height - current_canvas_height) > 1:
-            self.gantt_canvas.configure(scrollregion=(0, 0, current_scroll_width, current_canvas_height))
-            height_changed = True
-        visible_width = self.gantt_canvas.winfo_width()
-        target_x_pos = self.gantt_label_width + (current_time * self.gantt_time_scale)
-        if (width_changed or height_changed or (target_x_pos > visible_width + self.gantt_canvas.xview()[0] * current_scroll_width)) and current_scroll_width > 0:
-            scroll_fraction = (target_x_pos - visible_width + 50) / current_scroll_width
-            self.gantt_canvas.xview_moveto(min(max(0, scroll_fraction), 1.0))
-        for i, processor in enumerate(processors):
-            try:
-                gui_proc_index = next(idx for idx, data in enumerate(self.processor_data) if data['id'] == processor.id)
-            except StopIteration:
-                continue
-            y_top = self.gantt_padding + self.gantt_header_height + gui_proc_index * (self.gantt_row_height + self.gantt_padding)
-            y_bottom = y_top + self.gantt_row_height
-            pid_at_step = 0
-            if time_step < len(processor.process_queue):
-                pid_at_step = processor.process_queue[time_step] if processor.process_queue[time_step] is not None else 0
-            pid = pid_at_step
-            x_start = self.gantt_label_width + time_step * self.gantt_time_scale
-            x_end = x_start + self.gantt_time_scale
-            color = self.generate_color(pid)
-            tag_name = f"t{time_step}_p{processor.id}"
-            if pid != 0:
-                self.gantt_canvas.create_rectangle(x_start, y_top + 1, x_end, y_bottom - 1, fill=color, outline="black", width=1, tags=(tag_name, "block"))
-                if self.gantt_time_scale > 18:
-                    text_color = "white" if sum(int(color[i:i+2], 16) for i in (1,3,5)) < 384 else "black"
-                    self.gantt_canvas.create_text(x_start + self.gantt_time_scale / 2, y_top + self.gantt_row_height / 2, text=str(pid), fill=text_color, font=('Arial', 8, 'bold'), tags=(tag_name, "block_text"))
+        self.simulation.simulation_step()
 
     def prepare_results_table(self, initial_processes: list):
         self.results_tree.delete(*self.results_tree.get_children())
