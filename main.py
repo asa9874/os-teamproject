@@ -3,7 +3,8 @@ from core import Processor
 from scheduler import CustomScheduler
 from simulator import SchedulerApp
 from scheduler import SchedulerType
-from visualization import SchedulerGUI
+from visualization import SchedulerGUI, SchedulerGUI2
+
 
 # 시간기준은 시작을 기준임 
 # 현재 시간: 0초 -> 0초에 프로세스 할당끝난시점,시동전력 포함
