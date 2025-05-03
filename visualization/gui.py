@@ -551,20 +551,20 @@ class SchedulerGUI(tk.Tk):
     def _execute_one_step(self):
         scheduler = self.app.scheduler # 현재 스케줄러 객체 가져오기
 
-        if scheduler.hasNext(): # 실행할 프로세스가 남았는지 확인
+        if scheduler.has_next(): # 실행할 프로세스가 남았는지 확인
             current_time = scheduler.current_time # 현재 시간 기록 (업데이트 전)
 
             # 루틴 수행
-            scheduler.ready_queue_update()
+            scheduler.update_ready_queue()
             scheduler.schedule()
             scheduler.assign_process()
-            scheduler.processor_power_off()
+            scheduler.power_off_idle_processors()
             scheduler.process_waiting_time_update()
 
             # 현재 상태 가져오기 (로직 실행 후)
             current_processes = scheduler.get_process()
             current_processors = scheduler.get_processors()
-            current_power = scheduler.get_current_power()
+            current_power = scheduler.calculate_total_power()
 
             # GUI 업데이트
             self.update_gantt_chart_live(current_processors, current_time)
@@ -606,7 +606,7 @@ class SchedulerGUI(tk.Tk):
             final_processes = self.app.scheduler.get_process()
             final_processors = self.app.scheduler.get_processors()
             final_time = self.app.scheduler.current_time # 최종 시간
-            total_power = self.app.scheduler.get_current_power() # 최종 전력
+            total_power = self.app.scheduler.calculate_total_power() # 최종 전력
             self.update_results_table_live(final_processes) # 마지막 상태 결과 테이블 반영
             self.calculate_and_display_summary(total_power, final_time) # 최종 요약 정보 표시
         else: # 앱/스케줄러 없으면 N/A 표시
