@@ -7,7 +7,7 @@ class HRRNScheduler(BaseScheduler):
     Response Ratio = (대기 시간 + 실행 시간) / 실행 시간
     """
 
-    def assign_process(self):
+    def assign_process(self) -> None:
         for processor in self.processors_info:
             if processor.is_process_empty(): 
                 if len(self.ready_queue) > 1: # 길이 2 이상일 때 정렬

@@ -79,7 +79,7 @@ class BaseScheduler(ABC):
             power += processor.used_power
         return power
     
-    def power_off_idle_processors(self):
+    def power_off_idle_processors(self) -> None:
         """
         프로세서의 전원을 끄는 메서드
         (할당된 프로세스가 없고 대기 중인 프로세스가 없고 전원이 켜져 있는 경우)
@@ -91,11 +91,21 @@ class BaseScheduler(ABC):
     def update_current_time(self) -> None:
         self.current_time += 1
         
-    def get_process(self):
+    def get_process(self) -> List[Process]:
         return self.processes
     
-    def get_processors(self):
+    def get_processors(self) -> List[Processor]:
         return self.processors_info
+
+
+
+
+
+
+
+
+
+
 
     # 디버깅용 출력 메서드들
     def log_state(self) -> None:

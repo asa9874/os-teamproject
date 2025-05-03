@@ -13,7 +13,7 @@ class CustomScheduler(BaseScheduler):
 
     제약: 프로세서가 쉬면 안됨
     """
-    def assign_process(self):
+    def assign_process(self) -> None:
         def avg_RT(): # readyQueue의 평균 RT값
             return sum([i.remaining_time for i in self.ready_queue]) / (len(self.ready_queue)) if self.ready_queue else 0
 

@@ -17,7 +17,7 @@ class Process:
     def is_running(self) -> bool:
         return self.running
 
-    def start(self, current_time: int):
+    def start(self, current_time: int) -> None:
         """프로세스의 시작 시간 업데이트 및 실행 상태 설정"""
         self.running = True
         if self.start_time is None:
