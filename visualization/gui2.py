@@ -205,7 +205,25 @@ class SchedulerGUI2(ctk.CTk):
         results_header.pack(pady=(5,0), anchor="w", padx=5)
         results_frame = ctk.CTkFrame(self.output_container_frame)  # padx, pady 제거
         results_frame.pack(side="top", fill="both", expand=True, padx=5, pady=(0,5))  # pack()에서 패딩 지정
-        self.results_tree = ttk.Treeview(results_frame, columns=("pid", "arrival", "burst", "remain", "start", "wait", "turnaround", "ntt"), show="headings", height=5)
+        columns = ("pid", "arrival", "burst", "remain", "start", "wait", "turnaround", "ntt")
+        self.results_tree = ttk.Treeview(
+            results_frame,
+            columns=columns,
+            show="headings",
+            height=5
+        )
+        self.results_tree.heading("pid", text="PID")
+        self.results_tree.heading("arrival", text="arrival")
+        self.results_tree.heading("burst", text="burst")
+        self.results_tree.heading("remain", text="remain")
+        self.results_tree.heading("start", text="start")
+        self.results_tree.heading("wait", text="wait")
+        self.results_tree.heading("turnaround", text="turnaround")
+        self.results_tree.heading("ntt", text="NTT")
+        for col in columns:
+            self.results_tree.column(col, width=120, stretch=False)
+            self.results_tree.heading(col, text=col.capitalize())
+        
         # ... (Treeview 설정 코드)
         results_scrollbar = ttk.Scrollbar(results_frame, orient="vertical", command=self.results_tree.yview)
         self.results_tree.configure(yscrollcommand=results_scrollbar.set)
