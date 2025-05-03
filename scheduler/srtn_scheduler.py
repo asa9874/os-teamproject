@@ -6,8 +6,7 @@ from collections import deque
 class SRTNScheduler(BaseScheduler):
     def assign_process(self):
         """
-        선점
-        Remain Time을 기준으로 정렬하여 프로세스를 할당하는 스케줄러
+        Remain Time을 기준으로 정렬하여 프로세스를 할당하는 스케줄러(선점)
         실행중인 프로세스 남은시간 > 대기큐에서 남은시간이 가장 짧은 프로세스의 남은시간 => 선점
         """
         for processor in self.processors_info:

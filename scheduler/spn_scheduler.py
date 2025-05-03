@@ -3,8 +3,7 @@ from collections import deque
 
 class SPNScheduler(BaseScheduler):
     """
-    비선점
-    실행시간을 기준으로 정렬하여 프로세스를 할당하는 스케줄러
+    실행시간을 기준으로 정렬하여 프로세스를 할당하는 스케줄러(비선점)
     """
     def assign_process(self):
         for processor in self.processors_info:
