@@ -2,7 +2,7 @@
 import customtkinter as ctk
 import tkinter.ttk as ttk
 from simulator import SchedulerType
-
+#from visualization.gui2 import SchedulerGUI2
 
 class WidgetBuilder:
     def __init__(self, app):
@@ -95,7 +95,7 @@ class WidgetBuilder:
         ctk.CTkLabel(process_input_frame, text="Burst:").grid(row=1, column=0, padx=5, pady=(2,5), sticky="w")
         app.burst_entry = ctk.CTkEntry(process_input_frame, width=50)
         app.burst_entry.grid(row=1, column=1, padx=5, pady=(2,5), sticky="ew")
-        app.add_process_button = ctk.CTkButton(process_input_frame, text="Add", command=app.add_process, width=60)
+        app.add_process_button = ctk.CTkButton(process_input_frame, text="Add", command=app.input.add_process, width=60)
         app.add_process_button.grid(row=0, column=2, rowspan=2, padx=10, pady=5, sticky="ns")
         process_input_frame.grid_columnconfigure(1, weight=1)
 
@@ -115,7 +115,7 @@ class WidgetBuilder:
         app.process_tree.configure(yscrollcommand=process_scrollbar.set)
         process_scrollbar.pack(side="right", fill="y")
         app.process_tree.pack(side="left", fill="x", expand=True)
-        app.remove_process_button = ctk.CTkButton(process_section_frame, text="Remove Selected Process", command=app.remove_process)
+        app.remove_process_button = ctk.CTkButton(process_section_frame, text="Remove Selected Process", command=app.input.remove_process)
         app.remove_process_button.pack(pady=(0,5), padx=5)
 
         # 프로세서 입력
@@ -133,7 +133,7 @@ class WidgetBuilder:
         proc_type_e = ctk.CTkRadioButton(processor_input_frame, text="E-Core", variable=app.proc_type_var, value="E")
         proc_type_p.grid(row=0, column=1, padx=5, pady=(10,2), sticky="w")
         proc_type_e.grid(row=1, column=1, padx=5, pady=(2,10), sticky="w")
-        app.add_processor_button = ctk.CTkButton(processor_input_frame, text="Add", command=app.add_processor, width=60)
+        app.add_processor_button = ctk.CTkButton(processor_input_frame, text="Add", command=app.input.add_processor, width=60)
         app.add_processor_button.grid(row=0, column=2, rowspan=2, padx=10, pady=5, sticky="ns")
         processor_input_frame.grid_columnconfigure(1, weight=1)
 
@@ -150,7 +150,7 @@ class WidgetBuilder:
         app.processor_tree.configure(yscrollcommand=processor_scrollbar.set)
         processor_scrollbar.pack(side="right", fill="y")
         app.processor_tree.pack(side="left", fill="x", expand=True)
-        app.remove_processor_button = ctk.CTkButton(processor_section_frame, text="Remove Selected Processor", command=app.remove_processor)
+        app.remove_processor_button = ctk.CTkButton(processor_section_frame, text="Remove Selected Processor", command=app.input.remove_processor)
         app.remove_processor_button.pack(pady=(0,5))
 
     def setup_output_widgets(self):
