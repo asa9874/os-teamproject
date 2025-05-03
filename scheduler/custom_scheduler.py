@@ -1,20 +1,18 @@
 from collections import deque
-
-"""
-CustomAlgorithm => RR + FinishDelay(RemainingTime이 1초 남았을 때 대기상태)
-동기: 가장 비효율적인 최악의 스케줄링을 구현해보자
-
-아이디어: RR(qt=1) => 과도한 contextSwitching -> overhead 극대화
-        FinishDelay => starvation, avg_NTT 극대화
-
-평가지표: 모든 p의 평균 NTT값
-
-제약: 프로세서가 쉬면 안됨
-"""
-
 from scheduler import BaseScheduler
 
 class CustomScheduler(BaseScheduler):
+    """
+    CustomAlgorithm => RR + FinishDelay(RemainingTime이 1초 남았을 때 대기상태)
+    동기: 가장 비효율적인 최악의 스케줄링을 구현해보자
+
+    아이디어: RR(qt=1) => 과도한 contextSwitching -> overhead 극대화
+            FinishDelay => starvation, avg_NTT 극대화
+
+    평가지표: 모든 p의 평균 NTT값
+
+    제약: 프로세서가 쉬면 안됨
+    """
     def assign_process(self):
         def avg_RT(): # readyQueue의 평균 RT값
             return sum([i.remaining_time for i in self.ready_queue]) / (len(self.ready_queue)) if self.ready_queue else 0
