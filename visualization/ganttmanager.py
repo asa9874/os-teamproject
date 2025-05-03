@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter.ttk as ttk
 from simulator import SchedulerType
 from tkinter import messagebox
+import random
 
 class GanttManager:
     def __init__(self, app):
@@ -68,13 +69,26 @@ class GanttManager:
             pid = pid_at_step
             x_start = app.gantt_label_width + time_step * app.gantt_time_scale
             x_end = x_start + app.gantt_time_scale
-            color = app.generate_color(pid)
+            color = self.generate_color(pid)
             tag_name = f"t{time_step}_p{processor.id}"
             if pid != 0:
                 app.gantt_canvas.create_rectangle(x_start, y_top + 1, x_end, y_bottom - 1, fill=color, outline="black", width=1, tags=(tag_name, "block"))
                 if app.gantt_time_scale > 18:
                     text_color = "white" if sum(int(color[i:i+2], 16) for i in (1,3,5)) < 384 else "black"
                     app.gantt_canvas.create_text(x_start + app.gantt_time_scale / 2, y_top + app.gantt_row_height / 2, text=str(pid), fill=text_color, font=('Arial', 8, 'bold'), tags=(tag_name, "block_text"))
+
+    def generate_color(self, pid):
+        app = self.app
+        if pid == 0:
+            return "#E0E0E0"
+        if pid not in app.process_colors:
+            random.seed(pid)
+            r, g, b = [random.randint(100, 230) for _ in range(3)]
+            if r > 200 and g > 200 and b > 200:
+                b = random.randint(100,180)
+            app.process_colors[pid] = f'#{r:02x}{g:02x}{b:02x}'
+        return app.process_colors[pid]
+
 
     def draw_initial_gantt_layout(self):
         app = self.app

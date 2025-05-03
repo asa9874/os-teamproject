@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 from simulator import SchedulerType
 #from visualization.gui2 import SchedulerGUI2
 
-class WidgetBuilder:
+class WidgetManager:
     def __init__(self, app ):
         self.app = app  # 부모 클래스 인스턴스를 전달받음
         
@@ -28,7 +28,7 @@ class WidgetBuilder:
         self.setup_control_widgets()
         self.setup_input_widgets()
         self.setup_output_widgets()
-
+    
     def setup_control_widgets(self):
         app = self.app  
 
@@ -41,7 +41,7 @@ class WidgetBuilder:
             values=scheduler_names,
             variable=app.scheduler_var,
             width=100,
-            command=app.update_rr_quantum_visibility
+            command=self.update_rr_quantum_visibility
         )
         app.scheduler_combo.pack(side="left", padx=(0,10))
 
@@ -71,7 +71,7 @@ class WidgetBuilder:
         ctk.CTkLabel(app.control_frame, text="Speed:").pack(side="right", padx=0)
 
         # RR용 퀀텀 조건부 표시
-        app.update_rr_quantum_visibility()
+        self.update_rr_quantum_visibility()
 
     def setup_input_widgets(self):
         app = self.app  
@@ -211,3 +211,60 @@ class WidgetBuilder:
         power_var = ctk.StringVar(value="N/A")
         app.summary_label_vars["Total Power Used"] = power_var
         ctk.CTkLabel(summary_frame, textvariable=power_var, font=("Arial", 10)).pack(side="left", padx=(0,5))
+
+    def update_rr_quantum_visibility(self, event=None):
+        app = self.app
+        selected_scheduler = app.scheduler_var.get()
+        is_rr = selected_scheduler == SchedulerType.RR.name
+        print(f"Selected Scheduler: {selected_scheduler}, Is RR: {is_rr}")
+
+        if is_rr:
+            if not app.rr_quantum_label.winfo_ismapped():
+                app.rr_quantum_entry.pack(side="left", padx=(0, 10), before=app.start_button)
+                app.rr_quantum_label.pack(side="left", padx=(0, 2), before=app.rr_quantum_entry)
+            if not app.rr_quantum_entry.get():
+                app.rr_quantum_entry.insert(0, "4")
+        else:
+            if app.rr_quantum_label.winfo_ismapped():
+                app.rr_quantum_label.pack_forget()
+            if app.rr_quantum_entry.winfo_ismapped():
+                app.rr_quantum_entry.pack_forget()
+
+
+    def disable_inputs(self):
+        app = self.app
+        for frame in [app.input_frame, app.control_frame]:
+            for widget in frame.winfo_children():
+                if widget not in [app.start_button, app.pause_resume_button, app.step_button, app.reset_button]:
+                    try:
+                        widget.configure(state="disabled")
+                    except:
+                        pass
+                if isinstance(widget, (ctk.CTkFrame)):
+                    for child in widget.winfo_children():
+                        try:
+                            child.configure(state="disabled")
+                        except:
+                            pass
+
+    def enable_inputs(self):
+        app = self.app
+        for frame in [app.input_frame, app.control_frame]:
+            for widget in frame.winfo_children():
+                if widget not in [app.start_button, app.pause_resume_button, app.step_button, app.reset_button]:
+                    try:
+                        widget.configure(state="normal")
+                    except:
+                        pass
+                if isinstance(widget, (ctk.CTkFrame)):
+                    for child in widget.winfo_children():
+                        try:
+                            if isinstance(child, ctk.CTkComboBox):
+                                child.configure(state="readonly")
+                            else:
+                                child.configure(state="normal")
+                        except:
+                            pass
+                if widget == app.rr_quantum_entry:
+                    is_rr = app.scheduler_var.get() == SchedulerType.RR.name
+                    widget.configure(state="normal" if is_rr else "disabled")

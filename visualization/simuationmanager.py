@@ -57,7 +57,7 @@ class SimulationManager:
             return
         app.simulation_running = True
         app.simulation_paused = False
-        app.disable_inputs()
+        app.widget.disable_inputs()
         app.start_button.configure(state="disabled")
         app.pause_resume_button.configure(text="Pause", state="normal")
         app.step_button.configure(state="normal")
@@ -141,7 +141,7 @@ class SimulationManager:
         app.start_button.configure(text="Start", state="normal")
         app.pause_resume_button.configure(text="Pause", state="disabled")
         app.step_button.configure(state="disabled")
-        app.enable_inputs()
+        app.widget.enable_inputs()
         if app.current_after_id:
             app.after_cancel(app.current_after_id)
             app.current_after_id = None

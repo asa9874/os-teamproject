@@ -1,19 +1,14 @@
 import customtkinter as ctk
 from tkinter import messagebox
-import tkinter.ttk as ttk
 import sys
 import os
-import random
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from core.process import Process
-from core.processor import Processor
-from simulator import SchedulerApp, SchedulerType
-from scheduler.base_scheduler import BaseScheduler
-from visualization.widgetbuilder import WidgetBuilder
+from simulator import SchedulerApp
+from visualization.widgetmanager import WidgetManager
 from visualization.inputmanager import InputManager
 from visualization.ganttmanager import GanttManager
 from visualization.simuationmanager import SimulationManager
@@ -50,7 +45,7 @@ class SchedulerGUI2(ctk.CTk):
         self.gantt_time_scale = 25
         
         # 위젯
-        self.widget_builder = WidgetBuilder(self)
+        self.widget = WidgetManager(self)
         
         # 입력관련
         self.input = InputManager(self)
@@ -62,21 +57,10 @@ class SchedulerGUI2(ctk.CTk):
         self.simulation = SimulationManager(self)
         
         # 위젯,틀 생성
-        self.widget_builder.setup()
+        self.widget.setup()
 
         # 프로세스, 프로세서 목록 라벨 초기화
         self.update_list_counts()
-
-    def generate_color(self, pid):
-        if pid == 0:
-            return "#E0E0E0"
-        if pid not in self.process_colors:
-            random.seed(pid)
-            r, g, b = [random.randint(100, 230) for _ in range(3)]
-            if r > 200 and g > 200 and b > 200:
-                b = random.randint(100,180)
-            self.process_colors[pid] = f'#{r:02x}{g:02x}{b:02x}'
-        return self.process_colors[pid]
 
     def update_list_counts(self):
         if hasattr(self, 'process_list_labelframe') and self.process_list_labelframe.winfo_exists():
@@ -108,23 +92,6 @@ class SchedulerGUI2(ctk.CTk):
             self.gantt.draw_initial_gantt_layout()
             self.update_list_counts()
 
-    def update_rr_quantum_visibility(self, event=None):
-        selected_scheduler = self.scheduler_var.get()
-        is_rr = selected_scheduler == SchedulerType.RR.name
-        print(f"Selected Scheduler: {selected_scheduler}, Is RR: {is_rr}")
-
-        if is_rr:
-            if not self.rr_quantum_label.winfo_ismapped():
-                self.rr_quantum_entry.pack(side="left", padx=(0, 10), before=self.start_button)
-                self.rr_quantum_label.pack(side="left", padx=(0, 2), before=self.rr_quantum_entry)
-            if not self.rr_quantum_entry.get():
-                self.rr_quantum_entry.insert(0, "4")
-        else:
-            if self.rr_quantum_label.winfo_ismapped():
-                self.rr_quantum_label.pack_forget()
-            if self.rr_quantum_entry.winfo_ismapped():
-                self.rr_quantum_entry.pack_forget()
-
     def update_speed(self, value):
         new_speed = int(float(value))
         speed_changed = new_speed != self.simulation_speed_ms
@@ -150,7 +117,7 @@ class SchedulerGUI2(ctk.CTk):
         self.proc_type_var.set("P")
         self.rr_quantum_entry.delete(0, "end")
         self.scheduler_combo.set(self.scheduler_combo.cget("values")[0])
-        self.update_rr_quantum_visibility()
+        self.widget.update_rr_quantum_visibility()
         self.speed_scale.set(300)
         self.update_speed(300)
         self.update_list_counts()
@@ -158,7 +125,7 @@ class SchedulerGUI2(ctk.CTk):
         self.start_button.configure(text="Start", state="normal")
         self.pause_resume_button.configure(text="Pause", state="disabled")
         self.step_button.configure(state="disabled")
-        self.enable_inputs()
+        self.widget.enable_inputs()
         self.app = SchedulerApp()
         self.process_colors.clear()
 
@@ -169,95 +136,6 @@ class SchedulerGUI2(ctk.CTk):
         self.results_tree_items.clear()
         self.summary_label_vars["Total Power Used"].set("N/A")
         self.summary_label_vars["Current Time"].set("0")
-
-    def disable_inputs(self):
-        for frame in [self.input_frame, self.control_frame]:
-            for widget in frame.winfo_children():
-                if widget not in [self.start_button, self.pause_resume_button, self.step_button, self.reset_button]:
-                    try:
-                        widget.configure(state="disabled")
-                    except:
-                        pass
-                if isinstance(widget, (ctk.CTkFrame)):
-                    for child in widget.winfo_children():
-                        try:
-                            child.configure(state="disabled")
-                        except:
-                            pass
-
-    def enable_inputs(self):
-        for frame in [self.input_frame, self.control_frame]:
-            for widget in frame.winfo_children():
-                if widget not in [self.start_button, self.pause_resume_button, self.step_button, self.reset_button]:
-                    try:
-                        widget.configure(state="normal")
-                    except:
-                        pass
-                if isinstance(widget, (ctk.CTkFrame)):
-                    for child in widget.winfo_children():
-                        try:
-                            if isinstance(child, ctk.CTkComboBox):
-                                child.configure(state="readonly")
-                            else:
-                                child.configure(state="normal")
-                        except:
-                            pass
-                if widget == self.rr_quantum_entry:
-                    is_rr = self.scheduler_var.get() == SchedulerType.RR.name
-                    widget.configure(state="normal" if is_rr else "disabled")
-
-    def start_simulation(self):
-        if self.simulation_running:
-            return
-        self.clear_outputs()
-        self.app = SchedulerApp()
-        selected_scheduler_name = self.scheduler_var.get()
-        try:
-            self.app.scheduler_type = SchedulerType[selected_scheduler_name]
-        except KeyError:
-            messagebox.showerror("오류", f"알 수 없는 스케줄러 타입: {selected_scheduler_name}")
-            return
-        time_quantum = None
-        if self.app.scheduler_type == SchedulerType.RR:
-            try:
-                quantum_str = self.rr_quantum_entry.get()
-                if not quantum_str:
-                    messagebox.showerror("입력 필요", "RR은 Time Quantum 값이 필요합니다.")
-                    return
-                time_quantum = int(quantum_str)
-                if time_quantum <= 0:
-                    raise ValueError("Time Quantum은 양수여야 합니다.")
-            except ValueError as e:
-                messagebox.showerror("입력 오류", f"잘못된 Time Quantum 값: {e}")
-                return
-        if not self.process_data:
-            messagebox.showwarning("입력 필요", "적어도 하나 이상의 프로세스를 추가해야 합니다.")
-            return
-        for p_data in self.process_data:
-            self.app.add_process(**p_data)
-        if not self.processor_data:
-            messagebox.showwarning("입력 필요", "적어도 하나 이상의 프로세서를 추가해야 합니다.")
-            return
-        for i, proc_data in enumerate(self.processor_data):
-            q_for_processor = time_quantum if self.app.scheduler_type == SchedulerType.RR else None
-            self.app.add_processor(id=proc_data['id'], type=proc_data['type'], time_quantum=q_for_processor)
-            if self.app.scheduler_type == SchedulerType.RR:
-                self.processor_data[i]['quantum'] = q_for_processor
-        try:
-            self.app.select_scheduler()
-            self.prepare_results_table(self.app.scheduler.processes)
-            self.gantt.draw_initial_gantt_layout()
-        except Exception as e:
-            messagebox.showerror("초기화 오류", f"스케줄러 초기화 실패: {e}")
-            self.reset_all()
-            return
-        self.simulation_running = True
-        self.simulation_paused = False
-        self.disable_inputs()
-        self.start_button.configure(state="disabled")
-        self.pause_resume_button.configure(text="Pause", state="normal")
-        self.step_button.configure(state="normal")
-        self.simulation.simulation_step()
 
     def prepare_results_table(self, initial_processes: list):
         self.results_tree.delete(*self.results_tree.get_children())
