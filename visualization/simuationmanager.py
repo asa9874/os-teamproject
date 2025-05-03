@@ -1,5 +1,3 @@
-import customtkinter as ctk
-import tkinter.ttk as ttk
 from simulator import SchedulerType
 from tkinter import messagebox
 from simulator import SchedulerApp, SchedulerType

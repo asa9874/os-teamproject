@@ -1,8 +1,4 @@
-import customtkinter as ctk
-import tkinter.ttk as ttk
-from simulator import SchedulerType
 from tkinter import messagebox
-#from visualization.gui2 import SchedulerGUI2
 
 MAX_PROCESSES = 15
 MAX_PROCESSORS = 4

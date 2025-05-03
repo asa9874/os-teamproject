@@ -1,1 +1,1 @@
-from .gui2 import SchedulerGUI2
+from .gui import SchedulerGUI

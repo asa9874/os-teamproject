@@ -1,8 +1,6 @@
-# gui/control_widgets.py
 import customtkinter as ctk
 import tkinter.ttk as ttk
 from simulator import SchedulerType
-#from visualization.gui2 import SchedulerGUI2
 
 class WidgetManager:
     def __init__(self, app ):

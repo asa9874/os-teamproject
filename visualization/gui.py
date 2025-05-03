@@ -19,7 +19,7 @@ MAX_PROCESSORS = 4
 """ 
 pip install customtkinter 한후에 실행가능
 """
-class SchedulerGUI2(ctk.CTk):
+class SchedulerGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("프로세스 스케줄링 시뮬레이터")
@@ -165,5 +165,5 @@ class SchedulerGUI2(ctk.CTk):
         self.summary_label_vars["Total Power Used"].set(f"{total_power:.2f}")
 
 if __name__ == "__main__":
-    app_gui = SchedulerGUI2()
+    app_gui = SchedulerGUI()
     app_gui.mainloop()
