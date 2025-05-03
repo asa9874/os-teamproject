@@ -11,9 +11,7 @@ from visualization import SchedulerGUI, SchedulerGUI2
 # 현재 시간: 1초 -> 1초에 프로세스 끝,프로세스 할당끝난시점, 0초 단계 사용전략 포함
 def main():
     app_gui = SchedulerGUI()
-    app_gui.mainloop() # Tkinter 이벤트 루프 시작
-    
-
+    app_gui.mainloop() 
 
 
 if __name__ == '__main__':

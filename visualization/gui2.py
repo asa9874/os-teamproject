@@ -73,9 +73,14 @@ class SchedulerGUI2(ctk.CTk):
         ctk.CTkLabel(self.control_frame, text="Algorithm:").pack(side="left", padx=(0,2))
         scheduler_names = [s.name for s in SchedulerType]
         self.scheduler_var = ctk.StringVar(value=scheduler_names[0])
-        self.scheduler_combo = ctk.CTkComboBox(self.control_frame, values=scheduler_names, variable=self.scheduler_var, width=100)
+        self.scheduler_combo = ctk.CTkComboBox(
+            self.control_frame,
+            values=scheduler_names,
+            variable=self.scheduler_var,
+            width=100,
+            command=self.update_rr_quantum_visibility
+        )
         self.scheduler_combo.pack(side="left", padx=(0,10))
-        self.scheduler_combo.bind("<<ComboboxSelected>>", self.update_rr_quantum_visibility)
 
         # RR용 타임 퀀텀
         self.rr_quantum_label = ctk.CTkLabel(self.control_frame, text="Time Quantum:")
@@ -325,10 +330,12 @@ class SchedulerGUI2(ctk.CTk):
     def update_rr_quantum_visibility(self, event=None):
         selected_scheduler = self.scheduler_var.get()
         is_rr = selected_scheduler == SchedulerType.RR.name
+        print(f"Selected Scheduler: {selected_scheduler}, Is RR: {is_rr}")
+
         if is_rr:
             if not self.rr_quantum_label.winfo_ismapped():
-                self.rr_quantum_entry.pack(side="left", padx=(0,10), before=self.start_button)
-                self.rr_quantum_label.pack(side="left", padx=(0,2), before=self.rr_quantum_entry)
+                self.rr_quantum_entry.pack(side="left", padx=(0, 10), before=self.start_button)
+                self.rr_quantum_label.pack(side="left", padx=(0, 2), before=self.rr_quantum_entry)
             if not self.rr_quantum_entry.get():
                 self.rr_quantum_entry.insert(0, "4")
         else:
@@ -676,5 +683,5 @@ class SchedulerGUI2(ctk.CTk):
         self.summary_label_vars["Total Power Used"].set(f"{total_power:.2f}")
 
 if __name__ == "__main__":
-    app_gui = SchedulerGUI()
+    app_gui = SchedulerGUI2()
     app_gui.mainloop()
