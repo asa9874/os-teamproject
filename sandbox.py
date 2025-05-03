@@ -8,7 +8,7 @@ from scheduler import SchedulerType
 # 현재 시간: 0초 -> 0초에 프로세스 할당끝난시점,시동전력 포함
 # 현재 시간: 1초 -> 1초에 프로세스 끝,프로세스 할당끝난시점, 0초 단계 사용전략 포함
 def main():
-    app = SchedulerApp(scheduler_type=SchedulerType.CUSTOM)
+    app = SchedulerApp(scheduler_type=SchedulerType.FCFS)
     processes = [
         Process(pid=1, arrival=0, burst=7),
         Process(pid=2, arrival=1, burst=6),
@@ -18,7 +18,7 @@ def main():
         Process(pid=6, arrival=40, burst=5),    
         ]
     app.add_processes(processes)
-    app.add_processor(id=1, type="E", time_quantum=1)
+    app.add_processor(id=1, type="E")
     app.run()
     
 
