@@ -130,7 +130,7 @@ class SimulationManager:
         if app.app and app.app.scheduler:
             final_processes = app.app.scheduler.get_process()
             final_processors = app.app.scheduler.get_processors()
-            final_time = app.app.scheduler.current_time
+            final_time = app.app.scheduler.current_time -1
             total_power = app.app.scheduler.calculate_total_power()
             app.update_results_table_live(final_processes)
             app.calculate_and_display_summary(total_power, final_time)
