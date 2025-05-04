@@ -175,35 +175,9 @@ class TestSchedulerApp(unittest.TestCase):
         # processor used_power 테스트
         self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
 
-    def test_custom(self):
-        app = SchedulerApp(scheduler_type=SchedulerType.CUSTOM)
-        app.add_processes(self.processes)
-        app.add_processors(self.processors)
-        app.run()
-
-        processes = app.scheduler.get_process()
-        processors = app.scheduler.get_processors()
-
-        # turnaround_time 테스트
-        self.assertEqual(processes[0].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[1].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[2].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[3].turnaround_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[4].turnaround_time, ) # 계산후 추가해주세요
-
-        # wait_time 테스트
-        self.assertEqual(processes[0].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[1].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[2].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[3].wait_time, ) # 계산후 추가해주세요
-        self.assertEqual(processes[4].wait_time, ) # 계산후 추가해주세요
-
-        # processor used_power 테스트
-        self.assertEqual(processors[0].used_power, 0.1 + 1 * 20) 
-
 
 if __name__ == '__main__':
-    choice = input("실행할 스케줄러 입력 (fcfs, rr,rr3, spn, hrrn, srtn, custom, all): ").strip().lower()
+    choice = input("실행할 스케줄러 입력 (fcfs, rr,rr3, spn, hrrn, srtn, all): ").strip().lower()
     
     suite = unittest.TestSuite()
 
@@ -219,8 +193,6 @@ if __name__ == '__main__':
         suite.addTest(TestSchedulerApp('test_hrrn'))
     elif choice == 'srtn':
         suite.addTest(TestSchedulerApp('test_srtn'))
-    elif choice == 'custom':
-        suite.addTest(TestSchedulerApp('test_custom'))
     else:
         suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestSchedulerApp)
 
