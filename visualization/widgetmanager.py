@@ -218,6 +218,7 @@ class WidgetManager:
 
         if is_rr:
             if not app.rr_quantum_label.winfo_ismapped():
+                app.rr_quantum_entry.configure(state="normal" if is_rr else "disabled")
                 app.rr_quantum_entry.pack(side="left", padx=(0, 10), before=app.start_button)
                 app.rr_quantum_label.pack(side="left", padx=(0, 2), before=app.rr_quantum_entry)
             if not app.rr_quantum_entry.get():
