@@ -41,7 +41,12 @@ class SimulationManager:
             messagebox.showwarning("입력 필요", "적어도 하나 이상의 프로세서를 추가해야 합니다.")
             return
         for i, proc_data in enumerate(app.processor_data):
-            q_for_processor = time_quantum if app.app.scheduler_type == SchedulerType.RR else None
+            if app.app.scheduler_type == SchedulerType.CUSTOM:
+                q_for_processor = 1
+            elif app.app.scheduler_type == SchedulerType.RR:
+                q_for_processor = time_quantum
+            else:
+                q_for_processor = None
             app.app.add_processor(id=proc_data['id'], type=proc_data['type'], time_quantum=q_for_processor)
             if app.app.scheduler_type == SchedulerType.RR:
                 app.processor_data[i]['quantum'] = q_for_processor
